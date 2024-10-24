@@ -85,7 +85,6 @@ namespace ChessNEA
                 }
             }
 
-
             movescalculated = true;
         }
     }

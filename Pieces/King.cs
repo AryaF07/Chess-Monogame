@@ -53,8 +53,40 @@ namespace ChessNEA
                 leftclickPressed = false;
                 Debug.WriteLine(IsWhite ? "Mouse has clicked white king" : "Mouse has clicked black king");
                 //Displays line depending on if the piece is white or not.
+                findMoves();
             }
         }
 
+        void findMoves()
+        {
+            legalmoves.Clear();
+            int row = (Position.Y - 5) / 60; //calculates the row number for the pawn in the array using the coordinates of the rectangle
+            int col = (Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
+
+            for (int i = -1; i <= 1; i++)
+            {
+                if (row + i >= 0 && row + i < 8 && col - 1 >= 0)
+                {
+                    if (board.ChessBoard[row + i, col - 1] == null || board.ChessBoard[row + i, col - 1].IsWhite != this.IsWhite)
+                    {
+                        legalmoves.Add(new Point(col - 1, row + i));
+                    }
+                    if (board.ChessBoard[row + i, col] == null || board.ChessBoard[row + i, col].IsWhite != this.IsWhite)
+                    {
+                        legalmoves.Add(new Point(col, row + i));
+                    }
+                }
+                if (row + i >= 0 && row + i < 8 && col + 1 <8)
+                {
+                    if (board.ChessBoard[row + i, col + 1] == null || board.ChessBoard[row + i, col + 1].IsWhite != this.IsWhite)
+                    {
+                        legalmoves.Add(new Point(col + 1, row + i));
+                    }
+                }
+            }
+
+
+            movescalculated = true;
+        }
     }
 }

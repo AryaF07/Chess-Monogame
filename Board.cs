@@ -133,7 +133,7 @@ namespace ChessNEA
                 if (piece != null) 
                 {
                     piece.Update(); //updates the pieces to check if they have been clicked
-                      
+
                     if (piece.movescalculated == true)
                     {
                         highlights.Clear();
@@ -144,6 +144,7 @@ namespace ChessNEA
                         piece.legalmoves.Clear(); //Clears the legal move list as they have all been highlighted
 
                     }
+
 
 
                     if (highlightsDrawn == true)  //checks if the highlights have been drawn before checking if they have been clicked
@@ -164,17 +165,14 @@ namespace ChessNEA
                                 if (leftclickPressed == false && mouse.LeftButton == ButtonState.Pressed)
                                 {
                                     leftclickPressed = true;
-                                    Debug.WriteLine("Highlight clicked");
+                                 
                                 }
                                 if (leftclickPressed == true && mouse.LeftButton == ButtonState.Released) //If clicked
                                 {
-                                    Debug.WriteLine("Highlight clicked2222");
+                                  
                                     leftclickPressed = false; //Sets to false for the next frame
 
                                     //Rearranged the calculation in line 119
-                                    Debug.WriteLine("Move column : {0} Move row : {1}", col, row);
-                                    Debug.WriteLine("arrayRow : {0} arrayColumn: {1}", moveRow, moveColumn);
-                                    Debug.WriteLine("Move X : {0} Move Y : {1}", (165 + (60 * row)), (5 + (60 * col)));
                                     ChessBoard[moveRow, moveColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
                                     ChessBoard[row, col] = ChessBoard[moveRow, moveColumn]; //Changes the position of the piece in the array after the move has been made
                                     ChessBoard[moveRow, moveColumn] = null; //previous position is empty

@@ -67,11 +67,15 @@ namespace ChessNEA
             {
                 if (row + i >= 0 && row + i < 8 && col - 1 >= 0)
                 {
-                    if (board.ChessBoard[row + i, col - 1] == null || board.ChessBoard[row + i, col - 1].IsWhite != this.IsWhite)
+                    if (board.ChessBoard[row + i, col - 1] == null || board.ChessBoard[row + i, col - 1].IsWhite != this.IsWhite) //checks if the square is empty or if it has an enemy piece
                     {
                         legalmoves.Add(new Point(col - 1, row + i));
                     }
-                    if (board.ChessBoard[row + i, col] == null || board.ChessBoard[row + i, col].IsWhite != this.IsWhite)
+                   
+                }
+                if (row + i >= 0 && row + i < 8)
+                {
+                    if (board.ChessBoard[row + i, col] == null || board.ChessBoard[row + i, col].IsWhite != this.IsWhite)  //checks the squares in the same column as the king
                     {
                         legalmoves.Add(new Point(col, row + i));
                     }

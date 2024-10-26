@@ -56,9 +56,94 @@ namespace ChessNEA
                 leftclickPressed = false;
                 Debug.WriteLine(IsWhite ? "Mouse has clicked white bishop" : "Mouse has clicked black bishop");
                 //Displays line depending on if the piece is white or not.
+                findMoves();
             }
         }
 
+        void findMoves()
+        {
+            legalmoves.Clear();
+            int row = (Position.Y - 5) / 60; //calculates the row number for the pawn in the array using the coordinates of the rectangle
+            int col = (Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
+         
+            for (int i = 1; i <= 7; i++)
+            {
+                if (row - i >= 0 && col + i < 8)
+                {
+                    if (board.ChessBoard[row - i, col + i] == null)
+                    {
+                        legalmoves.Add(new Point(col + i, row - i));
+                    }
+                    else if (board.ChessBoard[row - i, col + i].IsWhite != this.IsWhite)
+                    {
+                        legalmoves.Add(new Point(col + i, row - i));
+                        break;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
 
+            for (int i = 1; i <= 7; i++)
+            {
+                if (row + i < 8 && col + i < 8)
+                {
+                    if (board.ChessBoard[row + i, col + i] == null)
+                    {
+                        legalmoves.Add(new Point(col + i, row + i));
+                    }
+                    else if (board.ChessBoard[row + i, col + i].IsWhite != this.IsWhite)
+                    {
+                        legalmoves.Add(new Point(col + i, row + i));
+                        break;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            for (int i = 1; i <= 7; i++)
+            {
+                if (row - i >= 0 && col - i >= 0)
+                {
+                    if (board.ChessBoard[row - i, col - i] == null)
+                    {
+                        legalmoves.Add(new Point(col - i, row - i));
+                    }
+                    else if (board.ChessBoard[row - i, col - i].IsWhite != this.IsWhite)
+                    {
+                        legalmoves.Add(new Point(col - i, row - i));
+                        break;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            for (int i = 1; i <= 7; i++)
+            {
+                if (row + i < 8 && col - i >= 0)
+                {
+                    if (board.ChessBoard[row + i, col - i] == null)
+                    {
+                        legalmoves.Add(new Point(col - i, row + i));
+                    }
+                    else if (board.ChessBoard[row + i, col - i].IsWhite != this.IsWhite)
+                    {
+                        legalmoves.Add(new Point(col - i, row + i));
+                        break;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            movescalculated = true;
+        }
     }
 }

@@ -66,69 +66,67 @@ namespace ChessNEA
             legalmoves.Clear();
             int row = (Position.Y - 5) / 60; //calculates the row number for the pawn in the array using the coordinates of the rectangle
             int col = (Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
-
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++) //Checks the squares to the right of the rook
             {
                 if (col + i < 8)
                 {
-                    if (board.ChessBoard[row, col + i] == null) //checks if the square is empty or has an enemy piece
+                    if (board.ChessBoard[row, col + i] == null) //checks if the square is empty
                     {
                         legalmoves.Add(new Point(col + i, row));
                     }
-                    else if (board.ChessBoard[row, col + i] != null && board.ChessBoard[row, col + i].IsWhite != this.IsWhite)
+                    else if (board.ChessBoard[row, col + i].IsWhite != this.IsWhite)//checks if the square has an enemy piece
                     {
                         legalmoves.Add(new Point(col + i, row));
                         break;
                     }
-                    else
+                    else//ends the loop if there is a piece from the same colour
                     {
                         break;
                     }
 
                 }
             }
-
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++) //Checks the squares above the rook
             {
                 if (row + i < 8)
                 {
-                    if (board.ChessBoard[row + i, col] == null) //checks if the square is empty or has an enemy piece
+                    if (board.ChessBoard[row + i, col] == null) //checks if the square is empty
                     {
                         legalmoves.Add(new Point(col, row + i));
                     }
-                    else if (board.ChessBoard[row + i, col] != null && board.ChessBoard[row + i, col].IsWhite != this.IsWhite)
+                    else if (board.ChessBoard[row + i, col].IsWhite != this.IsWhite)//checks if the square has an enemy piece
                     {
                         legalmoves.Add(new Point(col, row + i));
                         break;
                     }
-                    else
+                    else//ends the loop if there is a piece from the same colour
                     {
                         break;
                     }
 
                 }
             }
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++) //Checks the squares to the left of the rook
             {
                 if (col - i >= 0)
                 {
-                    if (board.ChessBoard[row, col - i] == null) //checks if the square is empty or has an enemy piece
+                    if (board.ChessBoard[row, col - i] == null) //checks if the square is empty
                     {
                         legalmoves.Add(new Point(col - i, row));
                     }
-                    else if (board.ChessBoard[row, col - i] != null && board.ChessBoard[row, col - i].IsWhite != this.IsWhite)
+                    else if (board.ChessBoard[row, col - i].IsWhite != this.IsWhite) //checks if the square has an enemy piece
                     {
                         legalmoves.Add(new Point(col - i, row));
-                        break;
+                        break; 
                     }
-                    else
+                    else //ends the loop if there is a piece from the same colour
                     {
                         break;
                     }
 
                 }
             }
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++) //Checks the squares below the rook
             {
                 if (row - i >= 0)
                 {
@@ -136,21 +134,17 @@ namespace ChessNEA
                     {
                         legalmoves.Add(new Point(col, row - i));
                     }
-                    else if (board.ChessBoard[row - i, col] != null && board.ChessBoard[row - i, col].IsWhite != this.IsWhite)
+                    else if ( board.ChessBoard[row - i, col].IsWhite != this.IsWhite)//checks if the square has an enemy piece
                     {
                         legalmoves.Add(new Point(col, row - i));
                         break;
                     }
-                    else
+                    else//ends the loop if there is a piece from the same colour
                     {
                         break;
                     }
                 }
-            }
-               
-
-
-            
+            } 
             movescalculated = true;
         }
 

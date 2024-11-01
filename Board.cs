@@ -21,6 +21,7 @@ namespace ChessNEA
         List<Rectangle> highlights = new List<Rectangle>(); //this list will contain the rectangles for the move highlights
         bool highlightsDrawn;
         bool leftclickPressed;
+        bool turn = true; //true = whites turn false = blacks turn
         //This array will track the location of all the pieces throughout the game as would a normal board would.
         public Board()
         {
@@ -130,7 +131,7 @@ namespace ChessNEA
         {
             foreach (Piece piece in ChessBoard)
             {
-                if (piece != null) 
+                if (piece != null && piece.IsWhite == turn) 
                 {
                     piece.Update(); //updates the pieces to check if they have been clicked
 
@@ -179,6 +180,7 @@ namespace ChessNEA
 
                                     highlights.Clear(); //Clears the highlights because a move has been made
                                     highlightsDrawn = false; //Move has been made
+                                    turn = !turn;
                                     break; //Stops the search
 
 

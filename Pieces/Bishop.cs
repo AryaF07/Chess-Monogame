@@ -66,27 +66,27 @@ namespace ChessNEA
             int row = (Position.Y - 5) / 60; //calculates the row number for the pawn in the array using the coordinates of the rectangle
             int col = (Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
          
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++) //Checks top right diagonal
             {
                 if (row - i >= 0 && col + i < 8)
                 {
-                    if (board.ChessBoard[row - i, col + i] == null)
+                    if (board.ChessBoard[row - i, col + i] == null) //Checks if square has no piece on it
                     {
                         legalmoves.Add(new Point(col + i, row - i));
                     }
-                    else if (board.ChessBoard[row - i, col + i].IsWhite != this.IsWhite)
+                    else if (board.ChessBoard[row - i, col + i].IsWhite != this.IsWhite) //Checks if square has enemy piece
                     {
                         legalmoves.Add(new Point(col + i, row - i));
-                        break;
+                        break; //Stops search to prevent a move past a piece
                     }
                     else
                     {
-                        break;
+                        break; //breaks if there is a piece with the same colour as bishop
                     }
                 }
             }
 
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++) //Checks bottom right diagonal
             {
                 if (row + i < 8 && col + i < 8)
                 {
@@ -105,7 +105,7 @@ namespace ChessNEA
                     }
                 }
             }
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++) //Checks top left diagonal
             {
                 if (row - i >= 0 && col - i >= 0)
                 {
@@ -124,22 +124,22 @@ namespace ChessNEA
                     }
                 }
             }
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++) //Checks bottom left diagonal
             {
                 if (row + i < 8 && col - i >= 0)
                 {
-                    if (board.ChessBoard[row + i, col - i] == null)
+                    if (board.ChessBoard[row + i, col - i] == null) 
                     {
                         legalmoves.Add(new Point(col - i, row + i));
                     }
-                    else if (board.ChessBoard[row + i, col - i].IsWhite != this.IsWhite)
+                    else if (board.ChessBoard[row + i, col - i].IsWhite != this.IsWhite) 
                     {
                         legalmoves.Add(new Point(col - i, row + i));
-                        break;
+                        break; 
                     }
                     else
                     {
-                        break;
+                        break; 
                     }
                 }
             }

@@ -96,7 +96,7 @@ namespace ChessNEA
                         }
                     }
                     //adds moves to the legalmoves list of the piece
-                    movescalculated = true;
+                    
                    
                 }
                 if (row-1>=0) //Checks if index isnt outside the array
@@ -104,18 +104,18 @@ namespace ChessNEA
                     if (row !=6 && board.ChessBoard[row - 1, col] == null) //Pawn can only move 1 square at a time if its not at the start
                     {
                         legalmoves.Add(new Point(col, row - 1));
-                        movescalculated = true;
+                        
                     }
 
                     if (col - 1 >= 0 && board.ChessBoard[row - 1, col - 1] != null && board.ChessBoard[row - 1, col - 1].IsWhite != this.IsWhite) //Checks if index is outside the array and checks if the piece on that square is from the opposing colour
                     {
                         legalmoves.Add(new Point(col - 1, row - 1));
-                        movescalculated = true;
+                        
                     }
                     if (col + 1 < 8 && board.ChessBoard[row - 1, col + 1] != null && board.ChessBoard[row - 1, col + 1].IsWhite != this.IsWhite)//Checks if index is outside the array and checks if the piece on that square is from the opposing colour
                     {
                         legalmoves.Add(new Point(col +1, row -1));
-                        movescalculated = true;
+                        
                     }
                 }
 
@@ -136,28 +136,32 @@ namespace ChessNEA
                             break;
                         }
                     }
-                    movescalculated = true;
+                    
                 }
                 if (row + 1 < 8) //Checks if index isnt outside the array
                 {
                     if (row != 1 && board.ChessBoard[row + 1, col] == null) //Pawn can only move 1 square at a time if its not at the start
                     {
                         legalmoves.Add(new Point(col, row + 1));
-                        movescalculated = true;
+                       
                     }
 
                     if (col - 1 >= 0 && board.ChessBoard[row + 1, col - 1] != null && board.ChessBoard[row + 1, col - 1].IsWhite != this.IsWhite)//Checks if index is outside the array and checks if the piece on that square is from the opposing colour
                     {
                         legalmoves.Add(new Point(col - 1, row + 1));
-                        movescalculated = true;
+                        
                     }
                     if (col + 1 < 8 && board.ChessBoard[row + 1, col + 1] != null && board.ChessBoard[row + 1, col + 1].IsWhite != this.IsWhite)//Checks if index is outside the array and checks if the piece on that square is from the opposing colour
                     {
                         legalmoves.Add(new Point(col + 1, row + 1));
-                        movescalculated = true;
+                       
                     }
+
                 }
+
             }
+
+            movescalculated = true;
         }
     }
 }

@@ -79,7 +79,7 @@ namespace ChessNEA
                         legalmoves.Add(new Point(col + i, row));
                         break;
                     }
-                    else//ends the loop if there is a piece from the same colour
+                    else //breaks if there is a piece with the same colour as rook
                     {
                         break;
                     }
@@ -90,16 +90,16 @@ namespace ChessNEA
             {
                 if (row + i < 8)
                 {
-                    if (board.ChessBoard[row + i, col] == null) //checks if the square is empty
+                    if (board.ChessBoard[row + i, col] == null) 
                     {
                         legalmoves.Add(new Point(col, row + i));
                     }
-                    else if (board.ChessBoard[row + i, col].IsWhite != this.IsWhite)//checks if the square has an enemy piece
+                    else if (board.ChessBoard[row + i, col].IsWhite != this.IsWhite)
                     {
                         legalmoves.Add(new Point(col, row + i));
                         break;
                     }
-                    else//ends the loop if there is a piece from the same colour
+                    else
                     {
                         break;
                     }
@@ -110,16 +110,16 @@ namespace ChessNEA
             {
                 if (col - i >= 0)
                 {
-                    if (board.ChessBoard[row, col - i] == null) //checks if the square is empty
+                    if (board.ChessBoard[row, col - i] == null) 
                     {
                         legalmoves.Add(new Point(col - i, row));
                     }
-                    else if (board.ChessBoard[row, col - i].IsWhite != this.IsWhite) //checks if the square has an enemy piece
+                    else if (board.ChessBoard[row, col - i].IsWhite != this.IsWhite) 
                     {
                         legalmoves.Add(new Point(col - i, row));
                         break; 
                     }
-                    else //ends the loop if there is a piece from the same colour
+                    else 
                     {
                         break;
                     }
@@ -130,16 +130,16 @@ namespace ChessNEA
             {
                 if (row - i >= 0)
                 {
-                    if (board.ChessBoard[row - i, col] == null) //checks if the square is empty or has an enemy piece
+                    if (board.ChessBoard[row - i, col] == null) 
                     {
                         legalmoves.Add(new Point(col, row - i));
                     }
-                    else if ( board.ChessBoard[row - i, col].IsWhite != this.IsWhite)//checks if the square has an enemy piece
+                    else if ( board.ChessBoard[row - i, col].IsWhite != this.IsWhite)
                     {
                         legalmoves.Add(new Point(col, row - i));
                         break;
                     }
-                    else//ends the loop if there is a piece from the same colour
+                    else
                     {
                         break;
                     }

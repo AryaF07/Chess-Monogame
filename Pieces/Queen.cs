@@ -61,7 +61,7 @@ namespace ChessNEA
             int row = (Position.Y - 5) / 60; //calculates the row number for the pawn in the array using the coordinates of the rectangle
             int col = (Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
 
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++) //Checks top right diagonal
             {
                 if (row - i >= 0 && col + i < 8)
                 {
@@ -81,7 +81,7 @@ namespace ChessNEA
                 }
             }
 
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++) //Checks bottom right diagonal
             {
                 if (row + i < 8 && col + i < 8)
                 {
@@ -100,7 +100,7 @@ namespace ChessNEA
                     }
                 }
             }
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++) //Checks top left diagonal
             {
                 if (row - i >= 0 && col - i >= 0)
                 {
@@ -119,7 +119,7 @@ namespace ChessNEA
                     }
                 }
             }
-            for (int i = 1; i <= 7; i++)
+            for (int i = 1; i <= 7; i++) //Checks bottom left diagonal
             {
                 if (row + i < 8 && col - i >= 0)
                 {
@@ -162,16 +162,16 @@ namespace ChessNEA
             {
                 if (row + i < 8)
                 {
-                    if (board.ChessBoard[row + i, col] == null) //checks if the square is empty
+                    if (board.ChessBoard[row + i, col] == null) 
                     {
                         legalmoves.Add(new Point(col, row + i));
                     }
-                    else if (board.ChessBoard[row + i, col].IsWhite != this.IsWhite)//checks if the square has an enemy piece
+                    else if (board.ChessBoard[row + i, col].IsWhite != this.IsWhite)
                     {
                         legalmoves.Add(new Point(col, row + i));
                         break;
                     }
-                    else//ends the loop if there is a piece from the same colour
+                    else
                     {
                         break;
                     }
@@ -182,16 +182,16 @@ namespace ChessNEA
             {
                 if (col - i >= 0)
                 {
-                    if (board.ChessBoard[row, col - i] == null) //checks if the square is empty
+                    if (board.ChessBoard[row, col - i] == null)
                     {
                         legalmoves.Add(new Point(col - i, row));
                     }
-                    else if (board.ChessBoard[row, col - i].IsWhite != this.IsWhite) //checks if the square has an enemy piece
+                    else if (board.ChessBoard[row, col - i].IsWhite != this.IsWhite) 
                     {
                         legalmoves.Add(new Point(col - i, row));
                         break;
                     }
-                    else //ends the loop if there is a piece from the same colour
+                    else 
                     {
                         break;
                     }
@@ -202,16 +202,16 @@ namespace ChessNEA
             {
                 if (row - i >= 0)
                 {
-                    if (board.ChessBoard[row - i, col] == null) //checks if the square is empty or has an enemy piece
+                    if (board.ChessBoard[row - i, col] == null) 
                     {
                         legalmoves.Add(new Point(col, row - i));
                     }
-                    else if (board.ChessBoard[row - i, col].IsWhite != this.IsWhite)//checks if the square has an enemy piece
+                    else if (board.ChessBoard[row - i, col].IsWhite != this.IsWhite)
                     {
                         legalmoves.Add(new Point(col, row - i));
                         break;
                     }
-                    else//ends the loop if there is a piece from the same colour
+                    else
                     {
                         break;
                     }

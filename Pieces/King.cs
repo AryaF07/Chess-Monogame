@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -17,7 +18,7 @@ namespace ChessNEA
             IsWhite = iswhite;
             Position = position;
         }
-
+        public bool check = false;
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)
@@ -36,6 +37,7 @@ namespace ChessNEA
         }
         public override void Update()
         {
+          
             MouseState mouse = Mouse.GetState();
             //gets the current state of the mouse for example XY position and button states
             Rectangle mouse2 = new Rectangle(mouse.X, mouse.Y, 1, 1);
@@ -55,6 +57,8 @@ namespace ChessNEA
                 //Displays line depending on if the piece is white or not.
                 findMoves();
             }
+       
+            
         }
 
         void findMoves()
@@ -89,7 +93,10 @@ namespace ChessNEA
                 }
             }
 
+
             movescalculated = true;
         }
+
+     
     }
 }

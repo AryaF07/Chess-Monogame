@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -22,6 +23,7 @@ namespace ChessNEA
         bool highlightsDrawn;
         bool leftclickPressed;
         bool turn = true; //true = whites turn false = blacks turn
+        bool check = false;
         //This array will track the location of all the pieces throughout the game as would a normal board would.
         public Board()
         {
@@ -101,7 +103,7 @@ namespace ChessNEA
             {
                 foreach (Rectangle rect in highlights)
                 {
-                    spriteBatch.Draw(highlightSprite, rect,Color.White * 0.5f); //draws every highlight in the list
+                    spriteBatch.Draw(highlightSprite, rect, Color.White * 0.5f); //draws every highlight in the list
                 }
                 highlightsDrawn = true;
                 
@@ -110,40 +112,68 @@ namespace ChessNEA
 
         public void highlightSquares(List<Point> points)
         {
-           
-            for (int i = 0; i < points.Count; i++)
+            if (check == false)
             {
-                //X is column
-                //Y is row
-                int x = points[i].X; //Stores the X coordinate of the point to an integer variable
-                int y = points[i].Y;   //Stores the Y coordinate of the point to an integer variable
-                highlights.Add( new Rectangle(160 + 60 * x,  60*y, 60, 60)); //finds the coordinates for the rectangle using the x and y of the points
-                Debug.WriteLine("Highlighted");
-                
-               
+                for (int i = 0; i < points.Count; i++)
+                {
+                    int column = points[i].X; //Stores the X coordinate of the point to an integer variable
+                    int row = points[i].Y;   //Stores the Y coordinate of the point to an integer variable
+                    highlights.Add(new Rectangle(160 + 60 * column, 60 * row, 60, 60)); //finds the coordinates for the rectangle using the x and y of the points
+                    Debug.WriteLine("Highlighted");
+                }
             }
-          
+            else 
+            {
+                for (int i = 0; i < points.Count; i++)
+                {
+                    bool potentialCheck = false;
+                    int column = points[i].X; //Stores the X coordinate of the point to an integer variable
+                    int row = points[i].Y;   //Stores the Y coordinate of the point to an integer variable
+                    Piece piece1 = ChessBoard[previousRow, previousColumn]; //Stores the moving piece
+                    Piece piece2 = ChessBoard[row, column]; //Stores what the moving piece will be replacing
+                    ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * column), 5 + (60 * row), 50, 50);
+                    ChessBoard[row, column] = ChessBoard[previousRow, previousColumn];
+                    ChessBoard[previousRow, previousColumn] = null;
+                    foreach (Piece piece in ChessBoard)
+                    {
+                        if (piece != null && piece is King king && king.IsWhite == turn)
+                        {
+                            potentialCheck = IsKingInCheck(king);
+                            break; //Checks if the move would keep the king in check 
+                        }
+                    }
+                    if (potentialCheck == false)
+                    {
+                        highlights.Add(new Rectangle(160 + 60 * column,  60 * row, 60, 60)); //finds the coordinates for the rectangle using the x and y of the points
+                        Debug.WriteLine("Highlighted");
+                    }
+                    ChessBoard[previousRow, previousColumn] = piece1;
+                    ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * previousColumn), 5 + (60 * previousRow), 50, 50);
+                    ChessBoard[row, column] = piece2;
+                }
+            }
         }
-        int moveRow = 0; //Will be used to store the row number for the piece
-        int moveColumn = 0;
-        //Will be used to store the row and column numbers for the piece
+        int previousRow = 0;
+        int previousColumn = 0;
+        //Will be used to store the row and column numbers for the piece that is going to move
         public void Update()
         {
+            
             foreach (Piece piece in ChessBoard)
             {
-                if (piece != null && piece.IsWhite == turn) 
+                if (piece != null && piece.IsWhite == turn)
                 {
                     piece.Update(); //updates the pieces to check if they have been clicked
 
                     if (piece.movescalculated == true)
                     {
                         highlights.Clear();
+                        previousRow = (piece.Position.Y - 5) / 60;  //calculates the row number for the pawn in the array using the coordinates of the rectangle
+                        previousColumn = (piece.Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
                         highlightSquares(piece.legalmoves); //if they have been clicked and legal moves were found, these moves are highlighted.
-                        moveRow = (piece.Position.Y - 5) / 60; //calculates the row number for the pawn in the array using the coordinates of the rectangle
-                        moveColumn = (piece.Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
                         piece.movescalculated = false; //this is to prevent the moves for this piece being highlighted more than once
                         piece.legalmoves.Clear(); //Clears the legal move list as they have all been highlighted
-
+                     
                     }
 
 
@@ -174,13 +204,25 @@ namespace ChessNEA
                                     leftclickPressed = false; //Sets to false for the next frame
 
                                     //Rearranged the calculation in line 119
-                                    ChessBoard[moveRow, moveColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
-                                    ChessBoard[row, col] = ChessBoard[moveRow, moveColumn]; //Changes the position of the piece in the array after the move has been made
-                                    ChessBoard[moveRow, moveColumn] = null; //previous position is empty
-
+                                    ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
+                                    ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
+                                    ChessBoard[previousRow, previousColumn] = null; //previous position is empty
                                     highlights.Clear(); //Clears the highlights because a move has been made
                                     highlightsDrawn = false; //Move has been made
                                     turn = !turn;
+                                    foreach (Piece piece1 in ChessBoard)
+                                    {
+                                        if (piece1 is King king)
+                                        {
+                                           if (king.IsWhite == turn)
+                                           {
+                                                check = IsKingInCheck(king);
+                                           }
+                                     
+                                        }
+
+
+                                    }
                                     break; //Stops the search
 
 
@@ -199,6 +241,237 @@ namespace ChessNEA
 
             
         }
+        private bool IsKingInCheck(King king)
+        {
+            int row = (king.Position.Y - 5) / 60; //calculates the row number for the pawn in the array using the coordinates of the rectangle
+            int col = (king.Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
 
+            for (int i = 1; i <= 7; i++) //Checks the squares to the right of the king
+            {
+
+                if (col + i < 8 && ChessBoard[row, col + i] != null)
+                {
+
+                    if (ChessBoard[row, col + i].IsWhite != king.IsWhite && (ChessBoard[row, col + i] is Rook || ChessBoard[row, col + i] is Queen))
+                    {  //if the square that is being checked has an enemy rook/queen the king is in check
+                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");    
+                        return true;
+                      
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+
+
+                }
+            }
+            for (int i = 1; i <= 7; i++) //Checks the squares below the king
+            {
+                if (row + i < 8 && ChessBoard[row + i, col] != null)
+                {
+                        
+                    if (ChessBoard[row + i, col].IsWhite != king.IsWhite && ChessBoard[row + i, col] is Rook || ChessBoard[row + i, col].IsWhite != king.IsWhite && ChessBoard[row + i, col] is Queen)
+                    {
+                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                        return true;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+
+
+                }
+            }
+            for (int i = 1; i <= 7; i++) //Checks the squares to the left of the king
+            {
+                if (col - i >= 0 && ChessBoard[row, col - i] != null)
+                {
+
+                    if (ChessBoard[row, col - i].IsWhite != king.IsWhite && ChessBoard[row, col - i] is Rook || ChessBoard[row, col - i].IsWhite != king.IsWhite && ChessBoard[row, col - i] is Queen)
+                    {
+                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                        return true;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+
+
+                }
+            }
+            for (int i = 1; i <= 7; i++) //Checks the squares above the king
+            {
+                if (row - i >= 0 && ChessBoard[row - i, col] != null)
+                {
+
+
+                    if (ChessBoard[row - i, col].IsWhite != king.IsWhite && ChessBoard[row - i, col] is Rook || ChessBoard[row - i, col].IsWhite != king.IsWhite && ChessBoard[row - i, col] is Queen)
+                    {
+                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                        return true;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+
+
+                }
+            }
+            //checks for knights
+            for (int j = -1; j <= 1; j = j + 2)
+            {
+                for (int i = 2; i >= -2; i = i - 4)
+                {
+                    if (row + i >= 0 && row + i < 8 && col + j >= 0 && col + j < 8 && ChessBoard[row + i, col + j] != null) //checks if not out of bounds
+                    {
+
+                        if (ChessBoard[row + i, col + j].IsWhite != king.IsWhite && ChessBoard[row + i, col + j] is Knight) //checks if the square has a knight
+                        {
+                            Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                            return true;
+                        }
+
+
+
+
+                    }
+
+                    if (col + i >= 0 && col + i < 8 && row + j >= 0 && row + j < 8 && ChessBoard[row + j, col + i] != null)
+                    {
+
+                        if (ChessBoard[row + j, col + i].IsWhite != king.IsWhite && ChessBoard[row + j, col + i] is Knight)
+                        {
+                            Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                            return true;
+                        }
+
+
+
+                    }
+                }
+            }
+            //CHECKING FOR BISHOP OR QUEEN
+            for (int i = 1; i <= 7; i++) //Checks top right diagonal
+            {
+                if (row - i >= 0 && col + i < 8 && ChessBoard[row - i, col + i] != null)
+                {
+                    if (ChessBoard[row - i, col + i].IsWhite != king.IsWhite && ChessBoard[row - i, col + i] is Bishop || ChessBoard[row - i, col + i].IsWhite != king.IsWhite && ChessBoard[row - i, col + i] is Queen) //Checks if square has no piece on it
+                    {
+                       
+                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                        return true;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+                }
+            }
+
+            for (int i = 1; i <= 7; i++) //Checks bottom right diagonal
+            {
+                if (row + i < 8 && col + i < 8 && ChessBoard[row + i, col + i] != null)
+                {
+                    if (ChessBoard[row + i, col + i].IsWhite != king.IsWhite && ChessBoard[row + i, col + i] is Bishop || ChessBoard[row + i, col + i].IsWhite != king.IsWhite && ChessBoard[row + i, col + i] is Queen) //Checks if square has no piece on it
+                    {
+                      
+                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                        return true;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+                }
+            }
+            for (int i = 1; i <= 7; i++) //Checks top left diagonal
+            {
+                if (row - i >= 0 && col - i >= 0 && ChessBoard[row - i, col - i] != null)
+                {
+                    if (ChessBoard[row - i, col - i].IsWhite != king.IsWhite && ChessBoard[row - i, col - i] is Bishop || ChessBoard[row - i, col - i].IsWhite != king.IsWhite && ChessBoard[row - i, col - i] is Queen) //Checks if square has no piece on it
+                    {
+                       
+                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                        return true;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+                }
+            }
+            for (int i = 1; i <= 7; i++) //Checks bottom left diagonal
+            {
+                if (row + i < 8 && col - i >= 0 && ChessBoard[row + i, col - i] != null)
+                {
+                    if (ChessBoard[row + i, col - i].IsWhite != king.IsWhite && ChessBoard[row + i, col - i] is Bishop || ChessBoard[row + i, col - i].IsWhite != king.IsWhite && ChessBoard[row + i, col - i] is Queen) //Checks if square has no piece on it
+                    {
+                        
+                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                        return true;
+                    }
+                    else
+                    {
+                        break;
+                    }
+
+                }
+            }
+            //Checking for pawns
+            if (king.IsWhite == true)
+            {
+                if (row - 1 >= 0 && col + 1 < 8)
+                {
+                    if (ChessBoard[row - 1, col + 1] != null && ChessBoard[row - 1, col + 1].IsWhite != king.IsWhite && ChessBoard[row - 1, col + 1] is Pawn)
+                    {
+                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                        return true;
+                    }
+                }
+                if (row - 1 >= 0 && col - 1 >= 0)
+                {
+                    if (ChessBoard[row - 1, col - 1] != null && ChessBoard[row - 1, col - 1].IsWhite != king.IsWhite && ChessBoard[row - 1, col - 1] is Pawn)
+                    {
+                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                        return true;
+                    }
+                }
+
+
+            }
+            else //if black king
+            {
+                if (row + 1 < 8 && col + 1 < 8)
+                {
+                    if (ChessBoard[row + 1, col + 1] != null && ChessBoard[row + 1, col + 1].IsWhite != king.IsWhite && ChessBoard[row + 1, col + 1] is Pawn)
+                    {
+                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                        return true;
+                    }
+                }
+                if (row + 1 < 8 && col - 1 >= 0)
+                {
+                    if (ChessBoard[row + 1, col - 1] != null && ChessBoard[row + 1, col - 1].IsWhite != king.IsWhite && ChessBoard[row + 1, col - 1] is Pawn)
+                    {
+                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
+                        return true;
+                    }
+                }
+
+            }
+            Debug.WriteLine("King is not in check");
+            return false;
+        }
     }
 }

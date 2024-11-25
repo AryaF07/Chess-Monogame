@@ -84,12 +84,15 @@ namespace ChessNEA
                         break;
                     }
 
+      
                 }
             }
-            for (int i = 1; i <= 7; i++) //Checks the squares above the rook
+            for (int i = 1; i <= 7; i++) //Checks the squares below the rook
             {
                 if (row + i < 8)
                 {
+                  
+
                     if (board.ChessBoard[row + i, col] == null) 
                     {
                         legalmoves.Add(new Point(col, row + i));
@@ -97,13 +100,15 @@ namespace ChessNEA
                     else if (board.ChessBoard[row + i, col].IsWhite != this.IsWhite)
                     {
                         legalmoves.Add(new Point(col, row + i));
+
+                       
                         break;
                     }
                     else
                     {
                         break;
                     }
-
+                    
                 }
             }
             for (int i = 1; i <= 7; i++) //Checks the squares to the left of the rook
@@ -126,10 +131,11 @@ namespace ChessNEA
 
                 }
             }
-            for (int i = 1; i <= 7; i++) //Checks the squares below the rook
+            for (int i = 1; i <= 7; i++) //Checks the squares above the rook
             {
                 if (row - i >= 0)
                 {
+
                     if (board.ChessBoard[row - i, col] == null) 
                     {
                         legalmoves.Add(new Point(col, row - i));

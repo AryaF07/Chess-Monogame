@@ -22,7 +22,7 @@ namespace ChessNEA
             Position = position;
             
         }
-        
+        public bool hasMoved = false;
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)

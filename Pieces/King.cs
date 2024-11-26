@@ -11,14 +11,14 @@ using Microsoft.Xna.Framework.Input;
 
 namespace ChessNEA
 {
-    class King : Piece
+   public class King : Piece
     {
         public King(Board board, bool iswhite, Rectangle position) 
         {
             IsWhite = iswhite;
             Position = position;
         }
-        public bool check = false;
+       public bool hasMoved = false;
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)
@@ -93,7 +93,54 @@ namespace ChessNEA
                 }
             }
 
+            if (hasMoved == false && board.check == false)
+            {
+                Debug.WriteLine("Checking for castle");
 
+                if (board.ChessBoard[row, col - 1] == null && board.ChessBoard[row, col - 2] == null && board.ChessBoard[row, col - 3] == null)
+                {
+                    if (board.ChessBoard[row, col - 4] != null && board.ChessBoard[row, col - 4] is Rook rook && rook.hasMoved == false && rook.IsWhite == this.IsWhite)
+                    {
+                        for (int j = 1; j <= 2; j++)
+                        {
+                            Position = new Rectangle(165 + (60 * col - j), 5 + (60 * row), 50, 50);
+                            if (board.IsKingInCheck(this) == true)
+                            {
+                                Debug.WriteLine("Verifying one of the two sqaures");
+                                break;
+                            }
+                            if (j == 2)
+                            {
+                                legalmoves.Add(new Point(col - 2, row));
+                                Debug.WriteLine("Castle added");
+                            }
+                        }
+                    }
+                }
+                else if (board.ChessBoard[row, col + 1] == null && board.ChessBoard[row, col + 2] == null)
+                {
+                    if (board.ChessBoard[row, col + 3] != null && board.ChessBoard[row, col + 3] is Rook rook && rook.hasMoved == false && rook.IsWhite == this.IsWhite)
+                    {
+                        for (int j = 1; j <= 2; j++)
+                        {
+                            Position = new Rectangle(165 + (60 * col + j), 5 + (60 * row), 50, 50);
+                            if (board.IsKingInCheck(this) == true)
+                            {
+                                Debug.WriteLine("Verifying one of the two sqaures");
+                                break;
+                            }
+                            if (j == 2)
+                            {
+                                legalmoves.Add(new Point(col + 2, row));
+                                Debug.WriteLine("Castle added");
+                            }
+                        }
+                    }
+                }
+
+
+            }
+            Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50);
             movescalculated = true;
         }
 

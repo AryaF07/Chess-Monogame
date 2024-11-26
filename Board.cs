@@ -111,17 +111,6 @@ namespace ChessNEA
 
         public void highlightSquares(List<Point> points)
         {
-            if (check == false)
-            {
-                for (int i = 0; i < points.Count; i++)
-                {
-                    int column = points[i].X; //Stores the X coordinate of the point to an integer variable
-                    int row = points[i].Y;   //Stores the Y coordinate of the point to an integer variable
-                    highlights.Add(new Rectangle(160 + 60 * column, 60 * row, 60, 60)); //finds the coordinates for the rectangle using the x and y of the points
-                }
-            }
-            else 
-            {
                 for (int i = 0; i < points.Count; i++)
                 {
                     bool potentialCheck = false;
@@ -148,7 +137,7 @@ namespace ChessNEA
                     ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * previousColumn), 5 + (60 * previousRow), 50, 50);
                     ChessBoard[row, column] = piece2;
                 }
-            }
+            
         }
         int previousRow = 0;
         int previousColumn = 0;
@@ -208,19 +197,19 @@ namespace ChessNEA
                                         king.hasMoved = true;
                                     }
 
-                                    if (ChessBoard[previousRow, previousColumn] is King kingCastleleft && previousColumn - 2 == col) //Checks if the move is a castle to the left
+                                    if (ChessBoard[previousRow, previousColumn] is King && previousColumn -2 == col) //Checks if the move is a queenside castle
                                     {
                                         ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
                                         ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
                                         ChessBoard[previousRow, previousColumn] = null; //previous position is empty
-                                        ChessBoard[row, 0].Position = new Rectangle(165 + (60 * 3), 5 + (60 * row), 50, 50);
+                                        ChessBoard[row, 0].Position = new Rectangle(165 + (60 * 3), 5 + (60 * row), 50, 50); //changes the position of the rook
                                         ChessBoard[row, 3] = ChessBoard[row, 0];
                                         ChessBoard[row, 0] = null;
                                         highlights.Clear(); //Clears the highlights because a move has been made
                                         highlightsDrawn = false; //Move has been made
                                         turn = !turn;
                                     }
-                                    else if (ChessBoard[previousRow, previousColumn] is King kingCastleright && previousColumn + 2 == col) //Checks if the move is a castle to the right
+                                    else if (ChessBoard[previousRow, previousColumn] is King && previousColumn + 2 == col) //Checks if the move is a kingside castle
                                     {
 
                                         ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece

@@ -39,6 +39,7 @@ namespace ChessNEA
             spriteBatch.Draw(pieceSprite, Position, Color.White);
             //draws the chess piece sprite on the screen
         }
+        
         public override void Update()
         {
             MouseState mouse = Mouse.GetState();

@@ -19,6 +19,7 @@ namespace ChessNEA
             Position = position;
         }
        public bool hasMoved = false;
+        bool testing = true;
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)
@@ -93,46 +94,40 @@ namespace ChessNEA
                 }
             }
 
-            if (hasMoved == false && board.check == false)
+            if (hasMoved == false && board.check == false) //Checks if the king has not moved and if the board is not in check
             {
-                Debug.WriteLine("Checking for castle");
-
-                if (board.ChessBoard[row, col - 1] == null && board.ChessBoard[row, col - 2] == null && board.ChessBoard[row, col - 3] == null)
-                {
-                    if (board.ChessBoard[row, col - 4] != null && board.ChessBoard[row, col - 4] is Rook rook && rook.hasMoved == false && rook.IsWhite == this.IsWhite)
+                if (board.ChessBoard[row, col - 1] == null && board.ChessBoard[row, col - 2] == null && board.ChessBoard[row, col - 3] == null) 
+                { //Checks if the 3 squares between the rook and king to the left are empty for a queenside castle
+                    if (board.ChessBoard[row,0] is Rook rook && rook.hasMoved == false)//Checks if the left rook has not moved
                     {
                         for (int j = 1; j <= 2; j++)
                         {
                             Position = new Rectangle(165 + (60 * col - j), 5 + (60 * row), 50, 50);
-                            if (board.IsKingInCheck(this) == true)
+                            if (board.IsKingInCheck(this) == true) //Checks if the king would be in check in the squares that it moves through
                             {
-                                Debug.WriteLine("Verifying one of the two sqaures");
-                                break;
+                                break; //No legal moves added if the king is in check in one of the squares
                             }
                             if (j == 2)
                             {
-                                legalmoves.Add(new Point(col - 2, row));
-                                Debug.WriteLine("Castle added");
+                                legalmoves.Add(new Point(col - 2, row)); 
                             }
                         }
                     }
                 }
                 else if (board.ChessBoard[row, col + 1] == null && board.ChessBoard[row, col + 2] == null)
-                {
-                    if (board.ChessBoard[row, col + 3] != null && board.ChessBoard[row, col + 3] is Rook rook && rook.hasMoved == false && rook.IsWhite == this.IsWhite)
+                {//Checks if the 2 squares between the rook and king to the right are empty for a kingside castle
+                    if (board.ChessBoard[row,7] is Rook rook && rook.hasMoved == false)
                     {
                         for (int j = 1; j <= 2; j++)
                         {
                             Position = new Rectangle(165 + (60 * col + j), 5 + (60 * row), 50, 50);
                             if (board.IsKingInCheck(this) == true)
                             {
-                                Debug.WriteLine("Verifying one of the two sqaures");
                                 break;
                             }
                             if (j == 2)
                             {
                                 legalmoves.Add(new Point(col + 2, row));
-                                Debug.WriteLine("Castle added");
                             }
                         }
                     }

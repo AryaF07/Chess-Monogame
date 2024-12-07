@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.Design.Serialization;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -137,7 +138,10 @@ namespace ChessNEA
                     ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * previousColumn), 5 + (60 * previousRow), 50, 50);
                     ChessBoard[row, column] = piece2;
                 }
-            
+                if (highlights.Count == 0) //if no moves then checkmate
+                {
+                    Debug.WriteLine(turn ? "black has checkmated white" : "white has checkmated black");
+                }
         }
         int previousRow = 0;
         int previousColumn = 0;
@@ -177,7 +181,17 @@ namespace ChessNEA
                             {
                                 int col = ((rect.X - 160) / 60); //Finds the column number of the highlight
                                 int row = (rect.Y / 60); //Finds  the row number of the highlight
-                               
+
+                                bool normalMove = true;
+
+                                foreach (Piece piece1 in ChessBoard) 
+                                {
+                                    if (piece1 is Pawn pawn)
+                                    {
+                                        pawn.movedtwoSquares = false;
+
+                                    }
+                                }
 
                                 if (leftclickPressed == false && mouse.LeftButton == ButtonState.Pressed)
                                 {
@@ -196,8 +210,14 @@ namespace ChessNEA
                                     {
                                         king.hasMoved = true;
                                     }
+                                    else if (ChessBoard[previousRow, previousColumn] is Pawn pawn && Math.Abs(previousRow - row) == 2 ) //Checks if the pawn is moving two squares
+                                    {
+                                        pawn.movedtwoSquares = true;
+                                    }
 
-                                    if (ChessBoard[previousRow, previousColumn] is King && previousColumn -2 == col) //Checks if the move is a queenside castle
+                                
+
+                                    if (ChessBoard[previousRow, previousColumn] is King && previousColumn - 2 == col) //Checks if the move is a queenside castle
                                     {
                                         ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
                                         ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
@@ -221,6 +241,36 @@ namespace ChessNEA
                                         highlights.Clear(); //Clears the highlights because a move has been made
                                         highlightsDrawn = false; //Move has been made
                                         turn = !turn;
+                                    }
+                                    else if (ChessBoard[previousRow, previousColumn] is Pawn pawnenPassant && Math.Abs(previousColumn - col) == 1) //checks if the move is diagonal
+                                    {
+                                        if (pawnenPassant.IsWhite == true)
+                                        {
+                                            if (ChessBoard[row + 1, col] is Pawn && ChessBoard[row, col] == null) //checks if the square below the move has a pawn and if the square is null
+                                            {
+                                                ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
+                                                ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
+                                                ChessBoard[previousRow, previousColumn] = null; //previous position is empty
+                                                ChessBoard[row + 1, col] = null; //removes the pawn below the square
+                                                highlights.Clear(); //Clears the highlights because a move has been made
+                                                highlightsDrawn = false; //Move has been made
+                                                turn = !turn;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if (ChessBoard[row - 1, col] is Pawn && ChessBoard[row, col] == null) //checks if the square below the move has a pawn and if the square is null
+                                            {
+                                                ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
+                                                ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
+                                                ChessBoard[previousRow, previousColumn] = null; //previous position is empty
+                                                ChessBoard[row - 1, col] = null; //removes the pawn below the square
+                                                highlights.Clear(); //Clears the highlights because a move has been made
+                                                highlightsDrawn = false; //Move has been made
+                                                turn = !turn;
+                                            }
+
+                                        }
                                     }
                                     else
                                     {

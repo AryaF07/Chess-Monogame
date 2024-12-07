@@ -23,9 +23,9 @@ namespace ChessNEA
             Position = position;
         
         }
-      
-        
-      
+
+
+       public bool movedtwoSquares = false;
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)
@@ -118,6 +118,21 @@ namespace ChessNEA
                         
                     }
                 }
+                //EN PASSANT
+                if (col - 1 >= 0)
+                {
+                    if (board.ChessBoard[row, col - 1] is Pawn pawn && pawn.movedtwoSquares == true && board.ChessBoard[row, col - 1].IsWhite != this.IsWhite)
+                    {
+                        legalmoves.Add(new Point(col - 1, row - 1));
+                    }
+                }
+                if (col + 1 <8)
+                {
+                    if (board.ChessBoard[row, col + 1] is Pawn pawn && pawn.movedtwoSquares == true && board.ChessBoard[row, col + 1].IsWhite != this.IsWhite)
+                    {
+                        legalmoves.Add(new Point(col + 1, row - 1));
+                    }
+                }
 
 
             }
@@ -158,7 +173,20 @@ namespace ChessNEA
                     }
 
                 }
-
+                if (col - 1 >= 0)
+                {
+                    if (board.ChessBoard[row, col - 1] is Pawn pawn && pawn.movedtwoSquares == true && board.ChessBoard[row, col - 1].IsWhite != this.IsWhite)
+                    {
+                        legalmoves.Add(new Point(col - 1, row + 1));
+                    }
+                }
+                if (col + 1 < 8)
+                {
+                    if (board.ChessBoard[row, col + 1] is Pawn pawn && pawn.movedtwoSquares == true && board.ChessBoard[row, col + 1].IsWhite != this.IsWhite)
+                    {
+                        legalmoves.Add(new Point(col + 1, row + 1));
+                    }
+                }
             }
 
             movescalculated = true;

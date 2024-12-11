@@ -182,7 +182,7 @@ namespace ChessNEA
                                 int col = ((rect.X - 160) / 60); //Finds the column number of the highlight
                                 int row = (rect.Y / 60); //Finds  the row number of the highlight
 
-                                bool normalMove = true;
+                             
 
                                 foreach (Piece piece1 in ChessBoard) 
                                 {
@@ -242,12 +242,10 @@ namespace ChessNEA
                                         highlightsDrawn = false; //Move has been made
                                         turn = !turn;
                                     }
-                                    else if (ChessBoard[previousRow, previousColumn] is Pawn pawnenPassant && Math.Abs(previousColumn - col) == 1) //checks if the move is diagonal
+                                    else if (ChessBoard[previousRow, previousColumn] is Pawn pawnenPassant && Math.Abs(previousColumn - col) == 1 && ChessBoard[row, col] == null) //checks if the move is diagonal and if square is empty
                                     {
                                         if (pawnenPassant.IsWhite == true)
                                         {
-                                            if (ChessBoard[row + 1, col] is Pawn && ChessBoard[row, col] == null) //checks if the square below the move has a pawn and if the square is null
-                                            {
                                                 ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
                                                 ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
                                                 ChessBoard[previousRow, previousColumn] = null; //previous position is empty
@@ -255,21 +253,17 @@ namespace ChessNEA
                                                 highlights.Clear(); //Clears the highlights because a move has been made
                                                 highlightsDrawn = false; //Move has been made
                                                 turn = !turn;
-                                            }
+                                            
                                         }
                                         else
                                         {
-                                            if (ChessBoard[row - 1, col] is Pawn && ChessBoard[row, col] == null) //checks if the square below the move has a pawn and if the square is null
-                                            {
                                                 ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
                                                 ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
                                                 ChessBoard[previousRow, previousColumn] = null; //previous position is empty
                                                 ChessBoard[row - 1, col] = null; //removes the pawn below the square
                                                 highlights.Clear(); //Clears the highlights because a move has been made
                                                 highlightsDrawn = false; //Move has been made
-                                                turn = !turn;
-                                            }
-
+                                                turn = !turn;              
                                         }
                                     }
                                     else

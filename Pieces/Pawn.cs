@@ -121,14 +121,14 @@ namespace ChessNEA
                 //EN PASSANT
                 if (col - 1 >= 0)
                 {
-                    if (board.ChessBoard[row, col - 1] is Pawn pawn && pawn.movedtwoSquares == true && board.ChessBoard[row, col - 1].IsWhite != this.IsWhite)
+                    if (board.ChessBoard[row, col - 1] is Pawn pawn && pawn.movedtwoSquares == true && board.ChessBoard[row, col - 1].IsWhite != this.IsWhite) //checks if the square to the left is an enemy pawn
                     {
                         legalmoves.Add(new Point(col - 1, row - 1));
                     }
                 }
                 if (col + 1 <8)
                 {
-                    if (board.ChessBoard[row, col + 1] is Pawn pawn && pawn.movedtwoSquares == true && board.ChessBoard[row, col + 1].IsWhite != this.IsWhite)
+                    if (board.ChessBoard[row, col + 1] is Pawn pawn && pawn.movedtwoSquares == true && board.ChessBoard[row, col + 1].IsWhite != this.IsWhite) //checks if the square to the right is an enemy pawn
                     {
                         legalmoves.Add(new Point(col + 1, row - 1));
                     }
@@ -173,6 +173,7 @@ namespace ChessNEA
                     }
 
                 }
+                //EN PASSANT
                 if (col - 1 >= 0)
                 {
                     if (board.ChessBoard[row, col - 1] is Pawn pawn && pawn.movedtwoSquares == true && board.ChessBoard[row, col - 1].IsWhite != this.IsWhite)

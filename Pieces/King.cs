@@ -62,7 +62,7 @@ namespace ChessNEA
             
         }
 
-        void findMoves()
+         public override void findMoves()
         {
             legalmoves.Clear();
             int row = (Position.Y - 5) / 60; //calculates the row number for the pawn in the array using the coordinates of the rectangle

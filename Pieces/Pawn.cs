@@ -73,7 +73,7 @@ namespace ChessNEA
           
         }
         
-        void findMoves()
+         public override void findMoves()
         {
             
             legalmoves.Clear();

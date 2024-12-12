@@ -57,41 +57,42 @@ namespace ChessNEA
                 findMoves();
 
             }
-            void findMoves()
+            
+        }
+        public override void findMoves()
+        {
+            legalmoves.Clear();
+            int row = (Position.Y - 5) / 60; //calculates the row number for the pawn in the array using the coordinates of the rectangle
+            int col = (Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
+
+
+            for (int j = -1; j <= 1; j = j + 2)
             {
-                legalmoves.Clear();
-                int row = (Position.Y - 5) / 60; //calculates the row number for the pawn in the array using the coordinates of the rectangle
-                int col = (Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
-
-                
-                    for (int j = -1; j <= 1; j = j + 2)
+                for (int i = 2; i >= -2; i = i - 4)
+                {
+                    if (row + i >= 0 && row + i < 8 && col + j >= 0 && col + j < 8)
                     {
-                        for (int i = 2; i >= -2; i = i - 4)
+                        if (board.ChessBoard[row + i, col + j] == null || board.ChessBoard[row + i, col + j].IsWhite != this.IsWhite) //checks if the square is empty or has an enemy piece
                         {
-                            if (row + i >= 0 && row + i < 8 && col + j >= 0 && col + j < 8)
-                            {
-                                if (board.ChessBoard[row + i, col + j] == null || board.ChessBoard[row + i, col + j].IsWhite != this.IsWhite) //checks if the square is empty or has an enemy piece
-                                {
-                                        legalmoves.Add(new Point(col + j, row + i));
-                                }
-                               
-                            }
-
-                            if (col + i >= 0 && col + i < 8 && row + j >= 0 && row + j < 8)
-                            {
-                                if (board.ChessBoard[row + j, col + i] == null || board.ChessBoard[row + j, col + i].IsWhite != this.IsWhite)//checks if the square is empty or has an enemy piece
-                                {
-                                    legalmoves.Add(new Point(col + i, row + j));
-                                }
-                                
-                            }
+                            legalmoves.Add(new Point(col + j, row + i));
                         }
+
                     }
-                movescalculated = true;
 
+                    if (col + i >= 0 && col + i < 8 && row + j >= 0 && row + j < 8)
+                    {
+                        if (board.ChessBoard[row + j, col + i] == null || board.ChessBoard[row + j, col + i].IsWhite != this.IsWhite)//checks if the square is empty or has an enemy piece
+                        {
+                            legalmoves.Add(new Point(col + i, row + j));
+                        }
 
-
+                    }
+                }
             }
+            movescalculated = true;
+
+
+
         }
 
     }

@@ -23,12 +23,14 @@ namespace ChessNEA
         Texture2D highlightSprite;
         Texture2D whitewinscreen;
         Texture2D blackwinscreen;
+        Texture2D stalematescreen;
         List<Rectangle> highlights = new List<Rectangle>(); //this list will contain the rectangles for the move highlights
         bool highlightsDrawn;
         bool leftclickPressed;
         private bool turn = true; //true = whites turn false = blacks turn
         public bool check = false;
         bool checkmate = false;
+        bool stalemate = false;
         //This array will track the location of all the pieces throughout the game as would a normal board would.
         public Board()
         {
@@ -90,6 +92,7 @@ namespace ChessNEA
             highlightSprite = content.Load<Texture2D>("highlight");
             whitewinscreen = content.Load<Texture2D>("whitewin");
             blackwinscreen = content.Load<Texture2D>("blackwin");
+            stalematescreen = content.Load<Texture2D>("stalemate");
         }
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -114,20 +117,26 @@ namespace ChessNEA
                 highlightsDrawn = true;
 
             }
-            if (checkmate == true)
+            Rectangle gameScreen = new Rectangle(125, 150, 564, 186);
+            if (checkmate == true) //Displays win screen if a player has been checkmated
             {
-                Rectangle checkmaterect = new Rectangle(125, 150,564,186);
+               
                 if (turn == true)
                 {
-                    spriteBatch.Draw(blackwinscreen, checkmaterect, Color.White);
+                    spriteBatch.Draw(blackwinscreen, gameScreen, Color.White);
+
                 }
                 else
                 {
-                    spriteBatch.Draw(whitewinscreen, checkmaterect, Color.White);
+                    spriteBatch.Draw(whitewinscreen, gameScreen, Color.White);
                 }
-               
+
             }
-            
+            if (stalemate == true)
+            {
+               spriteBatch.Draw(stalematescreen, gameScreen,Color.White);    
+            }
+
         }
 
         public void highlightSquares(List<Point> points)
@@ -307,10 +316,15 @@ namespace ChessNEA
                                                 check = IsKingInCheck(king1);
                                                 if (check == true)
                                                 {
-                                                    checkmate = Checkmate();
+                                                    checkmate = Checkmate(king1);
                                                 }
-                                           }
-                                     
+                                                else
+                                                {
+                                                    stalemate = Checkmate(king1);
+                                                }
+
+                                            }
+
                                         }
 
 
@@ -566,14 +580,14 @@ namespace ChessNEA
             return false;
         }
 
-        bool Checkmate() //checks if the king is in checkmate
+        bool Checkmate(King king) //checks if the king is in checkmate
         {
             foreach (Piece piece in ChessBoard)
             {
                 if (piece != null && piece.IsWhite == turn)
                 {
                     piece.findMoves();
-
+                    piece.movescalculated = false;
                     for (int i = 0; i < piece.legalmoves.Count; i++)
                     {
                         bool potentialCheck = false;
@@ -586,24 +600,18 @@ namespace ChessNEA
                         ChessBoard[prevrow, prevcol].Position = new Rectangle(165 + (60 * column), 5 + (60 * row), 50, 50);
                         ChessBoard[row, column] = ChessBoard[prevrow, prevcol];
                         ChessBoard[prevrow, prevcol] = null;
-                        foreach (Piece piece3 in ChessBoard)
-                        {
-                            if (piece3 != null && piece3 is King king && king.IsWhite == turn)
-                            {
-                                potentialCheck = IsKingInCheck(king);
-                                break; //Checks if the move would keep the king in check 
-                            }
-                        }
-                        if (potentialCheck == false)
-                        {
-                            return false;
-                        }
+                        potentialCheck = IsKingInCheck(king);
                         ChessBoard[prevrow, prevcol] = piece1;
                         ChessBoard[prevrow, prevcol].Position = new Rectangle(165 + (60 * prevcol), 5 + (60 * prevrow), 50, 50);
                         ChessBoard[row, column] = piece2;
+                        if (potentialCheck == false)
+                        {
+                            piece.legalmoves.Clear();
+                            return false;
+                        }
                     }
                     piece.legalmoves.Clear();
-                    piece.movescalculated = false;
+
                 }
                 
             }

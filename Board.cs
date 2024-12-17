@@ -8,7 +8,10 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.Design.Serialization;
 using System.Diagnostics;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Numerics;
+using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -24,13 +27,32 @@ namespace ChessNEA
         Texture2D whitewinscreen;
         Texture2D blackwinscreen;
         Texture2D stalematescreen;
-        List<Rectangle> highlights = new List<Rectangle>(); //this list will contain the rectangles for the move highlights
+        Texture2D fiftymoverulescreen;
+
+        Texture2D queenPromotionW;
+        Texture2D knightPromotionW;
+        Texture2D rookPromotionW;
+        Texture2D bishopPromotionW;
+
+        Texture2D queenPromotionB;
+        Texture2D knightPromotionB;
+        Texture2D rookPromotionB;
+        Texture2D bishopPromotionB;
+
+        List<Rectangle> highlights = new List<Rectangle>();//this list will contain the rectangles for the move highlights
+        Rectangle [] promotions = new Rectangle[4];//this array will contain the rectangles for the promotion sprites
         bool highlightsDrawn;
         bool leftclickPressed;
         private bool turn = true; //true = whites turn false = blacks turn
         public bool check = false;
         bool checkmate = false;
         bool stalemate = false;
+        bool promotewhite = false;
+        bool promoteblack = false;
+       public bool promoted = true;
+        bool pawnmoved = false; //indicates if a pawn has moved at any time
+        bool piececaptured = false; //indicates if a piece has been captured at any time
+        int numberofmoves = 0; //will keep count of how many moves have been made
         //This array will track the location of all the pieces throughout the game as would a normal board would.
         public Board()
         {
@@ -93,6 +115,17 @@ namespace ChessNEA
             whitewinscreen = content.Load<Texture2D>("whitewin");
             blackwinscreen = content.Load<Texture2D>("blackwin");
             stalematescreen = content.Load<Texture2D>("stalemate");
+            fiftymoverulescreen = content.Load<Texture2D>("50moverule");
+
+            queenPromotionW =  content.Load<Texture2D>("QueenW");
+            knightPromotionW = content.Load<Texture2D>("KnightW");
+            rookPromotionW = content.Load<Texture2D>("RookW");
+            bishopPromotionW = content.Load<Texture2D>("BishopW");
+
+            queenPromotionB = content.Load<Texture2D>("QueenB");
+            knightPromotionB = content.Load<Texture2D>("KnightB");
+            rookPromotionB = content.Load<Texture2D>("RookB");
+            bishopPromotionB = content.Load<Texture2D>("BishopB");
         }
         public void Draw(SpriteBatch spriteBatch)
         {
@@ -101,12 +134,9 @@ namespace ChessNEA
             {
                 if (piece != null)
                 {
-                    
                     piece.Draw(spriteBatch);
                     //If the space in the array isn't empty, it will call that piece's draw method
                 }
-
-
             }
             if (highlights.Count > 0) // If the list is not empty
             {
@@ -120,11 +150,10 @@ namespace ChessNEA
             Rectangle gameScreen = new Rectangle(125, 150, 564, 186);
             if (checkmate == true) //Displays win screen if a player has been checkmated
             {
-               
+
                 if (turn == true)
                 {
                     spriteBatch.Draw(blackwinscreen, gameScreen, Color.White);
-
                 }
                 else
                 {
@@ -134,9 +163,36 @@ namespace ChessNEA
             }
             if (stalemate == true)
             {
-               spriteBatch.Draw(stalematescreen, gameScreen,Color.White);    
+                spriteBatch.Draw(stalematescreen, gameScreen, Color.White);
+            }
+            if (numberofmoves == 50 && pawnmoved == false && piececaptured == false) //50 move rule
+            {
+                spriteBatch.Draw(fiftymoverulescreen, gameScreen, Color.White);
             }
 
+            if (promotewhite == true)
+            {
+                
+                Texture2D[] promotionTextures = { queenPromotionW, rookPromotionW, knightPromotionW, bishopPromotionW }; //Creates array for sprites to promote
+                for (int i = 0; i < 4; i++)
+                {
+                    promotions[i] = new Rectangle(220 + (i * 100), 200, 80, 80);
+                    spriteBatch.Draw(promotionTextures[i], promotions[i], Color.White);
+                }
+               
+
+            }
+            else if (promoteblack == true)
+            {
+                spriteBatch.Draw(highlightSprite, new Rectangle(125, 150, 564, 186), Color.Black);
+                Texture2D[] promotionTextures = { queenPromotionB, rookPromotionB, knightPromotionB, bishopPromotionB }; //Creates array for sprites to promote
+                for (int i = 0; i < 4; i++)
+                {
+                    promotions[i] = new Rectangle(220 + (i * 100), 200, 80, 80);
+                    spriteBatch.Draw(promotionTextures[i], promotions[i], Color.White);
+                }
+                
+            }
         }
 
         public void highlightSquares(List<Point> points)
@@ -173,10 +229,18 @@ namespace ChessNEA
         //Will be used to store the row and column numbers for the piece that is going to move
         public void Update()
         {
-            
+            if (promotewhite == true)
+            {
+                PromotePawn(true);
+            }
+            else if (promoteblack == true)
+            {
+                PromotePawn(false); 
+            }
+
             foreach (Piece piece in ChessBoard)
             {
-                if (piece != null && piece.IsWhite == turn)
+                if (piece != null && piece.IsWhite == turn && promotewhite == false && promoteblack == false)
                 {
                     piece.Update(); //updates the pieces to check if they have been clicked
 
@@ -207,7 +271,15 @@ namespace ChessNEA
                                 int col = ((rect.X - 160) / 60); //Finds the column number of the highlight
                                 int row = (rect.Y / 60); //Finds  the row number of the highlight
 
-                             
+                                if (numberofmoves == 50) //resets when reach 50
+                                {
+                                    numberofmoves = 0;
+                                    piececaptured = false;
+                                    pawnmoved = false;
+                                }
+
+
+                                
 
                                 foreach (Piece piece1 in ChessBoard) 
                                 {
@@ -278,7 +350,8 @@ namespace ChessNEA
                                                 highlights.Clear(); //Clears the highlights because a move has been made
                                                 highlightsDrawn = false; //Move has been made
                                                 turn = !turn;
-                                            
+                                                piececaptured = true;
+                                                pawnmoved = true;
                                         }
                                         else
                                         {
@@ -288,13 +361,23 @@ namespace ChessNEA
                                                 ChessBoard[row - 1, col] = null; //removes the pawn below the square
                                                 highlights.Clear(); //Clears the highlights because a move has been made
                                                 highlightsDrawn = false; //Move has been made
-                                                turn = !turn;              
+                                                turn = !turn;
+                                                piececaptured = true;
+                                                pawnmoved = true;
                                         }
                                     }
                                     else
                                     {
-                                      
+                                      if (ChessBoard[previousRow, previousColumn] is Pawn)
+                                      {
+                                         pawnmoved =true;
+                                      }
+
                                         ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
+                                        if (ChessBoard[row, col] != null) //Checks if it will be a capture
+                                        {
+                                            piececaptured = true;
+                                        }
                                         ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
                                         ChessBoard[previousRow, previousColumn] = null; //previous position is empty
                                         highlights.Clear(); //Clears the highlights because a move has been made
@@ -306,7 +389,8 @@ namespace ChessNEA
                                     {
                                         check = false; //if a move has been made while the board is in check it would be a move that stops the check
                                     }
-
+                                    numberofmoves++; //Number of moves increases after move has been made
+                                   
                                     foreach (Piece piece1 in ChessBoard)
                                     {
                                         if (piece1 is King king1)
@@ -327,7 +411,14 @@ namespace ChessNEA
 
                                         }
 
-
+                                    }
+                                    if (ChessBoard[row, col] != null && ChessBoard[row, col] is Pawn && ChessBoard[row, col].IsWhite == true && row == 0) //Checks for white pawn on first row
+                                    {
+                                        promotewhite = true;
+                                    }
+                                    else if (ChessBoard[row, col] != null &&  ChessBoard[row, col] is Pawn && ChessBoard[row, col].IsWhite == false && row == 7)//Checks for black pawn on last row
+                                    {
+                                        promoteblack = true;
                                     }
                                     break; //Stops the search
 
@@ -359,10 +450,8 @@ namespace ChessNEA
                 {
 
                     if (ChessBoard[row, col + i].IsWhite != king.IsWhite && (ChessBoard[row, col + i] is Rook || ChessBoard[row, col + i] is Queen))
-                    {  //if the square that is being checked has an enemy rook/queen the king is in check
-                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");    
+                    {  //if the square that is being checked has an enemy rook/queen the king is in check    
                         return true;
-                      
                     }
                     else
                     {
@@ -380,7 +469,6 @@ namespace ChessNEA
                         
                     if (ChessBoard[row + i, col].IsWhite != king.IsWhite && ChessBoard[row + i, col] is Rook || ChessBoard[row + i, col].IsWhite != king.IsWhite && ChessBoard[row + i, col] is Queen)
                     {
-                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                         return true;
                     }
                     else
@@ -399,7 +487,6 @@ namespace ChessNEA
 
                     if (ChessBoard[row, col - i].IsWhite != king.IsWhite && ChessBoard[row, col - i] is Rook || ChessBoard[row, col - i].IsWhite != king.IsWhite && ChessBoard[row, col - i] is Queen)
                     {
-                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                         return true;
                     }
                     else
@@ -419,7 +506,6 @@ namespace ChessNEA
 
                     if (ChessBoard[row - i, col].IsWhite != king.IsWhite && ChessBoard[row - i, col] is Rook || ChessBoard[row - i, col].IsWhite != king.IsWhite && ChessBoard[row - i, col] is Queen)
                     {
-                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                         return true;
                     }
                     else
@@ -441,7 +527,6 @@ namespace ChessNEA
 
                         if (ChessBoard[row + i, col + j].IsWhite != king.IsWhite && ChessBoard[row + i, col + j] is Knight) //checks if the square has a knight
                         {
-                            Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                             return true;
                         }
 
@@ -455,7 +540,6 @@ namespace ChessNEA
 
                         if (ChessBoard[row + j, col + i].IsWhite != king.IsWhite && ChessBoard[row + j, col + i] is Knight)
                         {
-                            Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                             return true;
                         }
 
@@ -471,8 +555,6 @@ namespace ChessNEA
                 {
                     if (ChessBoard[row - i, col + i].IsWhite != king.IsWhite && ChessBoard[row - i, col + i] is Bishop || ChessBoard[row - i, col + i].IsWhite != king.IsWhite && ChessBoard[row - i, col + i] is Queen) //Checks if square has no piece on it
                     {
-                       
-                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                         return true;
                     }
                     else
@@ -489,8 +571,6 @@ namespace ChessNEA
                 {
                     if (ChessBoard[row + i, col + i].IsWhite != king.IsWhite && ChessBoard[row + i, col + i] is Bishop || ChessBoard[row + i, col + i].IsWhite != king.IsWhite && ChessBoard[row + i, col + i] is Queen) //Checks if square has no piece on it
                     {
-                      
-                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                         return true;
                     }
                     else
@@ -507,7 +587,6 @@ namespace ChessNEA
                     if (ChessBoard[row - i, col - i].IsWhite != king.IsWhite && ChessBoard[row - i, col - i] is Bishop || ChessBoard[row - i, col - i].IsWhite != king.IsWhite && ChessBoard[row - i, col - i] is Queen) //Checks if square has no piece on it
                     {
                        
-                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                         return true;
                     }
                     else
@@ -523,8 +602,6 @@ namespace ChessNEA
                 {
                     if (ChessBoard[row + i, col - i].IsWhite != king.IsWhite && ChessBoard[row + i, col - i] is Bishop || ChessBoard[row + i, col - i].IsWhite != king.IsWhite && ChessBoard[row + i, col - i] is Queen) //Checks if square has no piece on it
                     {
-                        
-                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                         return true;
                     }
                     else
@@ -541,7 +618,6 @@ namespace ChessNEA
                 {
                     if (ChessBoard[row - 1, col + 1] != null && ChessBoard[row - 1, col + 1].IsWhite != king.IsWhite && ChessBoard[row - 1, col + 1] is Pawn)
                     {
-                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                         return true;
                     }
                 }
@@ -549,7 +625,6 @@ namespace ChessNEA
                 {
                     if (ChessBoard[row - 1, col - 1] != null && ChessBoard[row - 1, col - 1].IsWhite != king.IsWhite && ChessBoard[row - 1, col - 1] is Pawn)
                     {
-                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                         return true;
                     }
                 }
@@ -562,7 +637,6 @@ namespace ChessNEA
                 {
                     if (ChessBoard[row + 1, col + 1] != null && ChessBoard[row + 1, col + 1].IsWhite != king.IsWhite && ChessBoard[row + 1, col + 1] is Pawn)
                     {
-                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                         return true;
                     }
                 }
@@ -570,13 +644,12 @@ namespace ChessNEA
                 {
                     if (ChessBoard[row + 1, col - 1] != null && ChessBoard[row + 1, col - 1].IsWhite != king.IsWhite && ChessBoard[row + 1, col - 1] is Pawn)
                     {
-                        Debug.WriteLine(king.IsWhite ? "white king is in check" : "black king is in check");
                         return true;
                     }
                 }
 
             }
-            Debug.WriteLine("King is not in check");
+            
             return false;
         }
 
@@ -610,13 +683,106 @@ namespace ChessNEA
                             return false;
                         }
                     }
-                    piece.legalmoves.Clear();
+                     piece.legalmoves.Clear();
 
                 }
                 
             }
             return true;
         }
- 
+        void PromotePawn(bool IsWhite)
+        {
+            foreach (Rectangle rect in promotions)
+            {
+                MouseState mouse = Mouse.GetState();
+                Rectangle mouse2 = new Rectangle(mouse.X, mouse.Y, 1, 1);
+                if (mouse2.Intersects(rect)) //Checks if mouse is clicking the promotion icons
+                {      
+                    if (leftclickPressed == false && mouse.LeftButton == ButtonState.Pressed)
+                    {
+                        leftclickPressed = true;
+                    }
+                    if (leftclickPressed == true && mouse.LeftButton == ButtonState.Released) //If clicked
+                    {
+                        leftclickPressed = false;
+
+                        int pawnColumn = 0;
+                        if (IsWhite == true)
+                        {
+                            for (int i = 0; i < 8; i++) //Finds column number of white pawn
+                            {
+                                if (ChessBoard[0, i] is Pawn && ChessBoard[0, i].IsWhite == IsWhite) //if element is a pawn
+                                {
+                                    pawnColumn = i;
+                                    break;
+                                }
+                            }
+
+                            if (rect == promotions[0]) //Queen rectangle is at index 0
+                            {
+                                ChessBoard[0, pawnColumn] = new Queen(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 5, 50, 50)); //replaces pawn with queen
+                                promotewhite = false;
+                                promoted = true;
+                                   
+                            }
+                            else if (rect == promotions[1]) //Rook rectangle at index 1 
+                            {
+                                ChessBoard[0, pawnColumn] = new Rook(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 5, 50, 50));
+                                promotewhite = false;
+                                promoted = true;
+                            }
+                            else if (rect == promotions[2])//Knight rectangle at index 2 
+                            {
+                                ChessBoard[0, pawnColumn] = new Knight(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 5, 50, 50));
+                                promotewhite = false;
+                                promoted = true;
+                            }
+                            else if (rect == promotions[3])//Bishop rectangle at index 3 
+                            {
+                                ChessBoard[0, pawnColumn] = new Bishop(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 5, 50, 50));
+                                promotewhite = false;
+                                promoted = true;
+                            }
+
+                        }
+                        else
+                        {
+                            for (int i = 0; i < 8; i++) //Finds column number of white pawn
+                            {
+                                if (ChessBoard[7, i] is Pawn && ChessBoard[0, i].IsWhite == IsWhite) //if element is a pawn
+                                {
+                                    pawnColumn = i;
+                                    break;
+                                }
+                            }
+                            if (rect == promotions[0]) //Queen rectangle is at index 0
+                            {
+                                ChessBoard[7, pawnColumn] = new Queen(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 425, 50, 50));
+                                promoteblack = false;
+                                promoted = true;
+                            }
+                            else if (rect == promotions[1])//Rook rectangle at index 1 
+                            {
+                                ChessBoard[7, pawnColumn] = new Rook(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 425, 50, 50));
+                                promoteblack = false;
+                                promoted = true;
+                            }
+                            else if (rect == promotions[2])//Knight rectangle at index 2 
+                            {
+                                ChessBoard[7, pawnColumn] = new Knight(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 425, 50, 50));
+                                promoteblack = false;
+                                promoted = true;
+                            }
+                            else if (rect == promotions[3])//Bishop rectangle at index 3
+                            {
+                                ChessBoard[7, pawnColumn] = new Bishop(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 425, 50, 50));
+                                promoteblack = false;
+                                promoted = true;
+                            }
+                        }
+                    }
+                }
+            } 
+        }
     }
 }

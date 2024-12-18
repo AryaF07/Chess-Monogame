@@ -10,13 +10,15 @@ using System.ComponentModel.Design.Serialization;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-using System.Numerics;
+
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace ChessNEA
 {
@@ -28,19 +30,26 @@ namespace ChessNEA
         Texture2D blackwinscreen;
         Texture2D stalematescreen;
         Texture2D fiftymoverulescreen;
-
         Texture2D queenPromotionW;
         Texture2D knightPromotionW;
         Texture2D rookPromotionW;
         Texture2D bishopPromotionW;
-
         Texture2D queenPromotionB;
         Texture2D knightPromotionB;
         Texture2D rookPromotionB;
         Texture2D bishopPromotionB;
+        SpriteFont Font; //Stores font for timer text
 
         List<Rectangle> highlights = new List<Rectangle>();//this list will contain the rectangles for the move highlights
         Rectangle [] promotions = new Rectangle[4];//this array will contain the rectangles for the promotion sprites
+
+        double duration = 600; //Stores how much time each player has
+        double elaspedtimeW; //Stores how much time has elapsed during a whites turn
+        double elaspedtimeB;//Stores how much time has elapsed during a whites turn
+
+        string timerB = "10:00"; //timer for black
+        string timerW = "10:00"; //timer for white
+
         bool highlightsDrawn;
         bool leftclickPressed;
         private bool turn = true; //true = whites turn false = blacks turn
@@ -49,10 +58,11 @@ namespace ChessNEA
         bool stalemate = false;
         bool promotewhite = false;
         bool promoteblack = false;
-       public bool promoted = true;
+        public bool promoted = true;
         bool pawnmoved = false; //indicates if a pawn has moved at any time
         bool piececaptured = false; //indicates if a piece has been captured at any time
         int numberofmoves = 0; //will keep count of how many moves have been made
+
         //This array will track the location of all the pieces throughout the game as would a normal board would.
         public Board()
         {
@@ -126,9 +136,28 @@ namespace ChessNEA
             knightPromotionB = content.Load<Texture2D>("KnightB");
             rookPromotionB = content.Load<Texture2D>("RookB");
             bishopPromotionB = content.Load<Texture2D>("BishopB");
+
+            Font = content.Load<SpriteFont>("File");
         }
         public void Draw(SpriteBatch spriteBatch)
         {
+           
+            if (turn == true)
+            {
+                double remainingTime = Math.Max(0, duration - elaspedtimeW); //stores how much time is left
+                int minutes = (int)(remainingTime / 60);
+                int seconds = (int)(remainingTime - (minutes * 60));
+                timerW = $"{minutes:D2}:{seconds:D2}"; //puts time in MM:SS format
+            }
+            else
+            {
+                double remainingTime = Math.Max(0, duration - elaspedtimeB); //stores how much time is left
+                int minutes = (int)(remainingTime / 60);
+                int seconds = (int)(remainingTime - (minutes * 60));
+                timerB = $"{minutes:D2}:{seconds:D2}";//puts time in MM:SS format
+            }
+            spriteBatch.DrawString(Font, timerB,new Vector2(50, 50), Color.White);
+            spriteBatch.DrawString(Font, timerW, new Vector2(50, 400), Color.White);
             //draws all the sprites that are in the ChessBoard array
             foreach (Piece piece in ChessBoard)
             {
@@ -227,7 +256,7 @@ namespace ChessNEA
         int previousRow = 0;
         int previousColumn = 0;
         //Will be used to store the row and column numbers for the piece that is going to move
-        public void Update()
+        public void Update(GameTime gameTime)
         {
             if (promotewhite == true)
             {
@@ -235,7 +264,24 @@ namespace ChessNEA
             }
             else if (promoteblack == true)
             {
-                PromotePawn(false); 
+                PromotePawn(false);
+            }
+
+            if (turn == true) //during whites turn
+            {
+                elaspedtimeW += gameTime.ElapsedGameTime.TotalSeconds; //Adds on time elapsed from last frame
+                if (elaspedtimeW >= duration)
+                {
+                    elaspedtimeW = duration; //only the duration should have elapsed
+                }
+            }
+            else //blacks turn
+            {
+                elaspedtimeB += gameTime.ElapsedGameTime.TotalSeconds;
+                if (elaspedtimeB >= duration)
+                {
+                    elaspedtimeB = duration;
+                }
             }
 
             foreach (Piece piece in ChessBoard)

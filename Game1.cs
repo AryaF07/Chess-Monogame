@@ -51,7 +51,7 @@ namespace ChessNEA
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             // TODO: Add your update logic here
-                board.Update();
+                board.Update(gameTime);
             if (board.promoted == true)
             {
                 board.LoadContent(Content);

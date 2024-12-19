@@ -10,7 +10,7 @@ using System.ComponentModel.Design.Serialization;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
-
+using System.Net.NetworkInformation;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using System.Runtime.InteropServices;
@@ -38,14 +38,15 @@ namespace ChessNEA
         Texture2D knightPromotionB;
         Texture2D rookPromotionB;
         Texture2D bishopPromotionB;
+        Texture2D insufficientmaterialscreen;
         SpriteFont Font; //Stores font for timer text
 
         List<Rectangle> highlights = new List<Rectangle>();//this list will contain the rectangles for the move highlights
         Rectangle [] promotions = new Rectangle[4];//this array will contain the rectangles for the promotion sprites
 
-        double duration = 600; //Stores how much time each player has
-        double elaspedtimeW; //Stores how much time has elapsed during a whites turn
-        double elaspedtimeB;//Stores how much time has elapsed during a whites turn
+        double duration = 600 ; //Stores how much time each player has
+        double elapsedtimeW; //Stores how much time has elapsed during a whites turn
+        double elapsedtimeB;//Stores how much time has elapsed during a whites turn
 
         string timerB = "10:00"; //timer for black
         string timerW = "10:00"; //timer for white
@@ -58,6 +59,7 @@ namespace ChessNEA
         bool stalemate = false;
         bool promotewhite = false;
         bool promoteblack = false;
+        bool insufficientmaterial = false;
         public bool promoted = true;
         bool pawnmoved = false; //indicates if a pawn has moved at any time
         bool piececaptured = false; //indicates if a piece has been captured at any time
@@ -75,38 +77,31 @@ namespace ChessNEA
 
         public void SetupBoard()
         {
-            ChessBoard[0, 0] = new Rook(this,false, new Rectangle(165, 5, 50, 50));
+
+
             ChessBoard[0, 1] = new Knight(this, false, new Rectangle(225, 5, 50, 50));
             ChessBoard[0, 2] = new Bishop(this, false, new Rectangle(285, 5, 50, 50));
-            ChessBoard[0, 3] = new Queen(this, false, new Rectangle(345, 5, 50, 50));
+
             ChessBoard[0, 4] = new King(this, false, new Rectangle(405, 5, 50, 50));
-            ChessBoard[0, 5] = new Bishop(this, false, new Rectangle(465, 5, 50, 50));
             ChessBoard[0, 6] = new Knight(this, false, new Rectangle(525, 5, 50, 50));
             ChessBoard[0, 7] = new Rook(this, false, new Rectangle(585, 5, 50, 50));
             //black pieces
 
-            ChessBoard[7, 0] = new Rook(this, true, new Rectangle(165, 425, 50, 50));
-            ChessBoard[7, 1] = new Knight(this, true, new Rectangle(225, 425, 50, 50));
+
+       
             ChessBoard[7, 2] = new Bishop(this, true, new Rectangle(285, 425, 50, 50));
-            ChessBoard[7, 3] = new Queen(this, true, new Rectangle(345, 425, 50, 50));
+
             ChessBoard[7, 4] = new King(this, true, new Rectangle(405, 425, 50, 50));
             ChessBoard[7, 5] = new Bishop(this, true, new Rectangle(465, 425, 50, 50));
-            ChessBoard[7, 6] = new Knight(this, true, new Rectangle(525, 425, 50, 50));
-            ChessBoard[7, 7] = new Rook(this, true, new Rectangle(585, 425, 50, 50));
+     
+            
+
             //white pieces
 
             // This puts each chess piece in their positions same as a regular chess board
-            
-           
-            for (int i = 0; i < 8; i++)
-            {
-                
-                ChessBoard[1, i] = new Pawn(this,false, new Rectangle(165 + (i*60), 65, 50, 50)); //white pawns
 
-                ChessBoard[6, i] = new Pawn(this, true, new Rectangle(165 + (i*60), 365, 50, 50)); // black pawns
-               
-                //each square is separated by 60 so multiplier increases by 60 for the next pawns
-            }
+
+
             // this puts the pawns in their positions, for loop is used as pawns are on the same rows
         }
         public void LoadContent(ContentManager content)
@@ -126,6 +121,7 @@ namespace ChessNEA
             blackwinscreen = content.Load<Texture2D>("blackwin");
             stalematescreen = content.Load<Texture2D>("stalemate");
             fiftymoverulescreen = content.Load<Texture2D>("50moverule");
+            insufficientmaterialscreen = content.Load<Texture2D>("insufficientmaterial");
 
             queenPromotionW =  content.Load<Texture2D>("QueenW");
             knightPromotionW = content.Load<Texture2D>("KnightW");
@@ -141,17 +137,18 @@ namespace ChessNEA
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-           
+            Rectangle gameScreen = new Rectangle(125, 150, 564, 186);
+         
             if (turn == true)
             {
-                double remainingTime = Math.Max(0, duration - elaspedtimeW); //stores how much time is left
+                double remainingTime = Math.Max(0, duration - elapsedtimeW); //stores how much time is left
                 int minutes = (int)(remainingTime / 60);
                 int seconds = (int)(remainingTime - (minutes * 60));
                 timerW = $"{minutes:D2}:{seconds:D2}"; //puts time in MM:SS format
             }
             else
             {
-                double remainingTime = Math.Max(0, duration - elaspedtimeB); //stores how much time is left
+                double remainingTime = Math.Max(0, duration - elapsedtimeB); //stores how much time is left
                 int minutes = (int)(remainingTime / 60);
                 int seconds = (int)(remainingTime - (minutes * 60));
                 timerB = $"{minutes:D2}:{seconds:D2}";//puts time in MM:SS format
@@ -176,7 +173,7 @@ namespace ChessNEA
                 highlightsDrawn = true;
 
             }
-            Rectangle gameScreen = new Rectangle(125, 150, 564, 186);
+           
             if (checkmate == true) //Displays win screen if a player has been checkmated
             {
 
@@ -198,7 +195,18 @@ namespace ChessNEA
             {
                 spriteBatch.Draw(fiftymoverulescreen, gameScreen, Color.White);
             }
-
+            if (insufficientmaterial == true)
+            {
+                spriteBatch.Draw(insufficientmaterialscreen, gameScreen, Color.White);
+            }
+            if (elapsedtimeB == duration) //if black runs out of time white wins
+            {
+                spriteBatch.Draw(whitewinscreen, gameScreen, Color.White);
+            }
+            else if (elapsedtimeW == duration) //if white runs out of time black wins 
+            {
+                spriteBatch.Draw(blackwinscreen, gameScreen, Color.White);
+            }
             if (promotewhite == true)
             {
                 
@@ -269,18 +277,18 @@ namespace ChessNEA
 
             if (turn == true) //during whites turn
             {
-                elaspedtimeW += gameTime.ElapsedGameTime.TotalSeconds; //Adds on time elapsed from last frame
-                if (elaspedtimeW >= duration)
+                elapsedtimeW += gameTime.ElapsedGameTime.TotalSeconds; //Adds on time elapsed from last frame
+                if (elapsedtimeW >= duration)
                 {
-                    elaspedtimeW = duration; //only the duration should have elapsed
+                    elapsedtimeW = duration; //only the duration should have elapsed
                 }
             }
             else //blacks turn
             {
-                elaspedtimeB += gameTime.ElapsedGameTime.TotalSeconds;
-                if (elaspedtimeB >= duration)
+                elapsedtimeB += gameTime.ElapsedGameTime.TotalSeconds;
+                if (elapsedtimeB >= duration)
                 {
-                    elaspedtimeB = duration;
+                    elapsedtimeB = duration;
                 }
             }
 
@@ -343,7 +351,6 @@ namespace ChessNEA
                                 }
                                 if (leftclickPressed == true && mouse.LeftButton == ButtonState.Released) //If clicked
                                 {
-                                  
                                     leftclickPressed = false; //Sets to false for the next frame
                                     if (ChessBoard[previousRow, previousColumn] is Rook rook) //if the moving piece is a rook set has moved to true
                                     {
@@ -357,9 +364,6 @@ namespace ChessNEA
                                     {
                                         pawn.movedtwoSquares = true;
                                     }
-
-                                
-
                                     if (ChessBoard[previousRow, previousColumn] is King && previousColumn - 2 == col) //Checks if the move is a queenside castle
                                     {
                                         ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
@@ -418,7 +422,6 @@ namespace ChessNEA
                                       {
                                          pawnmoved =true;
                                       }
-
                                         ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
                                         if (ChessBoard[row, col] != null) //Checks if it will be a capture
                                         {
@@ -429,14 +432,12 @@ namespace ChessNEA
                                         highlights.Clear(); //Clears the highlights because a move has been made
                                         highlightsDrawn = false; //Move has been made
                                         turn = !turn;
-                                    }
-                                   
+                                    } 
                                     if (check == true)
                                     {
                                         check = false; //if a move has been made while the board is in check it would be a move that stops the check
                                     }
                                     numberofmoves++; //Number of moves increases after move has been made
-                                   
                                     foreach (Piece piece1 in ChessBoard)
                                     {
                                         if (piece1 is King king1)
@@ -452,12 +453,10 @@ namespace ChessNEA
                                                 {
                                                     stalemate = Checkmate(king1);
                                                 }
-
-                                            }
-
+                                           }
                                         }
-
                                     }
+                                    insufficientmaterial = InsufficientMaterial();
                                     if (ChessBoard[row, col] != null && ChessBoard[row, col] is Pawn && ChessBoard[row, col].IsWhite == true && row == 0) //Checks for white pawn on first row
                                     {
                                         promotewhite = true;
@@ -467,22 +466,12 @@ namespace ChessNEA
                                         promoteblack = true;
                                     }
                                     break; //Stops the search
-
-
                                 }
                             }
                         }
-
                     } 
-
-
-
-
                 }
-                
-            }
-
-            
+            }  
         }
         public bool IsKingInCheck(King king)
         {
@@ -491,7 +480,6 @@ namespace ChessNEA
 
             for (int i = 1; i <= 7; i++) //Checks the squares to the right of the king
             {
-
                 if (col + i < 8 && ChessBoard[row, col + i] != null)
                 {
 
@@ -503,16 +491,12 @@ namespace ChessNEA
                     {
                         break;
                     }
-
-
-
                 }
             }
             for (int i = 1; i <= 7; i++) //Checks the squares below the king
             {
                 if (row + i < 8 && ChessBoard[row + i, col] != null)
                 {
-                        
                     if (ChessBoard[row + i, col].IsWhite != king.IsWhite && ChessBoard[row + i, col] is Rook || ChessBoard[row + i, col].IsWhite != king.IsWhite && ChessBoard[row + i, col] is Queen)
                     {
                         return true;
@@ -521,16 +505,12 @@ namespace ChessNEA
                     {
                         break;
                     }
-
-
-
                 }
             }
             for (int i = 1; i <= 7; i++) //Checks the squares to the left of the king
             {
                 if (col - i >= 0 && ChessBoard[row, col - i] != null)
                 {
-
                     if (ChessBoard[row, col - i].IsWhite != king.IsWhite && ChessBoard[row, col - i] is Rook || ChessBoard[row, col - i].IsWhite != king.IsWhite && ChessBoard[row, col - i] is Queen)
                     {
                         return true;
@@ -539,17 +519,12 @@ namespace ChessNEA
                     {
                         break;
                     }
-
-
-
                 }
             }
             for (int i = 1; i <= 7; i++) //Checks the squares above the king
             {
                 if (row - i >= 0 && ChessBoard[row - i, col] != null)
                 {
-
-
                     if (ChessBoard[row - i, col].IsWhite != king.IsWhite && ChessBoard[row - i, col] is Rook || ChessBoard[row - i, col].IsWhite != king.IsWhite && ChessBoard[row - i, col] is Queen)
                     {
                         return true;
@@ -558,9 +533,6 @@ namespace ChessNEA
                     {
                         break;
                     }
-
-
-
                 }
             }
             //checks for knights
@@ -570,15 +542,10 @@ namespace ChessNEA
                 {
                     if (row + i >= 0 && row + i < 8 && col + j >= 0 && col + j < 8 && ChessBoard[row + i, col + j] != null) //checks if not out of bounds
                     {
-
                         if (ChessBoard[row + i, col + j].IsWhite != king.IsWhite && ChessBoard[row + i, col + j] is Knight) //checks if the square has a knight
                         {
                             return true;
                         }
-
-
-
-
                     }
 
                     if (col + i >= 0 && col + i < 8 && row + j >= 0 && row + j < 8 && ChessBoard[row + j, col + i] != null)
@@ -588,9 +555,6 @@ namespace ChessNEA
                         {
                             return true;
                         }
-
-
-
                     }
                 }
             }
@@ -607,7 +571,6 @@ namespace ChessNEA
                     {
                         break;
                     }
-
                 }
             }
 
@@ -639,7 +602,6 @@ namespace ChessNEA
                     {
                         break;
                     }
-
                 }
             }
             for (int i = 1; i <= 7; i++) //Checks bottom left diagonal
@@ -654,7 +616,6 @@ namespace ChessNEA
                     {
                         break;
                     }
-
                 }
             }
             //Checking for pawns
@@ -674,8 +635,6 @@ namespace ChessNEA
                         return true;
                     }
                 }
-
-
             }
             else //if black king
             {
@@ -694,8 +653,7 @@ namespace ChessNEA
                     }
                 }
 
-            }
-            
+            }    
             return false;
         }
 
@@ -730,9 +688,7 @@ namespace ChessNEA
                         }
                     }
                      piece.legalmoves.Clear();
-
                 }
-                
             }
             return true;
         }
@@ -789,13 +745,12 @@ namespace ChessNEA
                                 promotewhite = false;
                                 promoted = true;
                             }
-
                         }
                         else
                         {
-                            for (int i = 0; i < 8; i++) //Finds column number of white pawn
+                            for (int i = 0; i < 8; i++) //Finds column number of black pawn
                             {
-                                if (ChessBoard[7, i] is Pawn && ChessBoard[0, i].IsWhite == IsWhite) //if element is a pawn
+                                if (ChessBoard[7, i] is Pawn && ChessBoard[7, i].IsWhite == IsWhite) //if element is a pawn
                                 {
                                     pawnColumn = i;
                                     break;
@@ -829,6 +784,75 @@ namespace ChessNEA
                     }
                 }
             } 
+        }
+
+        bool InsufficientMaterial()
+        {
+            int bishopwhitesquareW = 0; //White bishops on white squares
+            int bishopblacksquareW = 0; //White bishops on black squares
+            int bishopwhitesquareB = 0; //Black bishops on white squares
+            int bishopblacksquareB = 0;//Black bishops on black squares
+            int pawns = 0; //Stores number of pawns
+            int blockedpawns = 0; //Stores number of pawns that cannot move due to being blocked
+            foreach (Piece piece in ChessBoard)
+            {
+                if (piece != null)
+                {
+                    if (piece is Rook or Queen)
+                    {
+                        return false;
+                    }
+                    else if (piece is Pawn)
+                    {
+                        pawns++;
+                    }
+                    else if (piece is Bishop)
+                    {
+                        if (piece.IsWhite == true && (((piece.Position.Y - 5) / 60) + ((piece.Position.X - 165) / 60)) % 2 == 0) //Adds the rows and columns and checks if its even
+                        {
+                            bishopwhitesquareW++;
+                        }
+                        else if (piece.IsWhite == true && (((piece.Position.Y - 5) / 60) + ((piece.Position.X - 165) / 60)) % 2 != 0)
+                        {
+                            bishopblacksquareW++;
+                        }
+                        else if (piece.IsWhite == false && (((piece.Position.Y - 5) / 60) + ((piece.Position.X - 165) / 60)) % 2 == 0) //Adds the rows and columns and checks if its even
+                        {
+                            bishopwhitesquareB++;
+                        }
+                        else if (piece.IsWhite == false && (((piece.Position.Y - 5) / 60) + ((piece.Position.X - 165) / 60)) % 2 != 0)
+                        {
+                            bishopblacksquareB++;
+                        }
+                    }
+                }
+            }
+            foreach (Piece piece in ChessBoard)
+            {
+                if (piece != null  && ((piece.Position.Y - 5) / 60) - 1>= 0) //checks if index is valid
+                {
+                    if (ChessBoard[((piece.Position.Y - 5) / 60) - 1, (piece.Position.X - 165) / 60] != null)
+                    {
+                        if (piece is Pawn && piece.IsWhite == true && ChessBoard[((piece.Position.Y - 5) / 60) - 1, (piece.Position.X - 165) / 60].IsWhite == false && ChessBoard[((piece.Position.Y - 5) / 60) - 1, (piece.Position.X - 165) / 60] is Pawn) //checks if there is a pawn infront of the pawn
+                        {
+                            blockedpawns += 2; //because the pawn infront of the pawn would also be blocked
+                        }
+
+                    }
+
+                }
+
+            }
+            if (blockedpawns < pawns) //checks if there are pawns that arent blocked
+            {
+                return false;
+            }
+            if ((bishopwhitesquareW == 0 || bishopblacksquareW == 0) && (bishopwhitesquareB == 0 || bishopblacksquareB == 0))
+            {
+                return true;
+            }
+           
+            return false;
         }
     }
 }

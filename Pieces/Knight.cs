@@ -52,7 +52,7 @@ namespace ChessNEA
             {
                 // if you have pressed left click in the previous frame and have now released left click, there will be an output
                 leftclickPressed = false;
-                Debug.WriteLine(IsWhite ? "Mouse has clicked white knight" : "Mouse has clicked black knight");
+             
 
                 findMoves();
 

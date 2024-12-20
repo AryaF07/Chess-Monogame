@@ -39,36 +39,37 @@ namespace ChessNEA
         Texture2D rookPromotionB;
         Texture2D bishopPromotionB;
         Texture2D insufficientmaterialscreen;
+        
         SpriteFont Font; //Stores font for timer text
 
         List<Rectangle> highlights = new List<Rectangle>();//this list will contain the rectangles for the move highlights
         Rectangle [] promotions = new Rectangle[4];//this array will contain the rectangles for the promotion sprites
 
-        double duration = 600 ; //Stores how much time each player has
+        public double duration = 600 ; //Stores how much time each player has
         double elapsedtimeW; //Stores how much time has elapsed during a whites turn
         double elapsedtimeB;//Stores how much time has elapsed during a whites turn
 
-        string timerB = "10:00"; //timer for black
-        string timerW = "10:00"; //timer for white
+        public string timerB = "00:00"; //timer for black
+        public string timerW = "00:00"; //timer for white
 
         bool highlightsDrawn;
         bool leftclickPressed;
-        private bool turn = true; //true = whites turn false = blacks turn
-        public bool check = false;
-        bool checkmate = false;
-        bool stalemate = false;
-        bool promotewhite = false;
-        bool promoteblack = false;
-        bool insufficientmaterial = false;
-        public bool promoted = true;
-        bool pawnmoved = false; //indicates if a pawn has moved at any time
-        bool piececaptured = false; //indicates if a piece has been captured at any time
-        int numberofmoves = 0; //will keep count of how many moves have been made
+        private bool turn; //true = whites turn false = blacks turn
+        public bool check;
+        bool checkmate;
+        bool stalemate;
+        bool promotewhite;
+        bool promoteblack;
+        bool insufficientmaterial;
+        public bool reload = false;
+        bool pawnmoved; //indicates if a pawn has moved at any time
+        bool piececaptured; //indicates if a piece has been captured at any time
+        int numberofmoves;//will keep count of how many moves have been made
 
         //This array will track the location of all the pieces throughout the game as would a normal board would.
         public Board()
         {
-            ChessBoard = new Piece[8, 8];
+            
             SetupBoard();
             Piece.setBoard(this);
             
@@ -77,30 +78,48 @@ namespace ChessNEA
 
         public void SetupBoard()
         {
-
-
+            ChessBoard = new Piece[8, 8];
+            turn = true;
+            check = false;
+            checkmate = false;
+            stalemate = false;
+            promotewhite = false;
+            promoteblack = false;
+            insufficientmaterial = false;
+            pawnmoved = false;
+            piececaptured = false;
+            numberofmoves = 0;
+            ChessBoard[0, 0] = new Rook(this, false, new Rectangle(165, 5, 50, 50));
             ChessBoard[0, 1] = new Knight(this, false, new Rectangle(225, 5, 50, 50));
             ChessBoard[0, 2] = new Bishop(this, false, new Rectangle(285, 5, 50, 50));
-
+            ChessBoard[0, 3] = new Queen(this, false, new Rectangle(345, 5, 50, 50));
             ChessBoard[0, 4] = new King(this, false, new Rectangle(405, 5, 50, 50));
+            ChessBoard[0, 5] = new Bishop(this, false, new Rectangle(465, 5, 50, 50));
             ChessBoard[0, 6] = new Knight(this, false, new Rectangle(525, 5, 50, 50));
             ChessBoard[0, 7] = new Rook(this, false, new Rectangle(585, 5, 50, 50));
             //black pieces
 
-
-       
+            ChessBoard[7, 0] = new Rook(this, true, new Rectangle(165, 425, 50, 50));
+            ChessBoard[7, 1] = new Knight(this, true, new Rectangle(225, 425, 50, 50));
             ChessBoard[7, 2] = new Bishop(this, true, new Rectangle(285, 425, 50, 50));
-
+            ChessBoard[7, 3] = new Queen(this, true, new Rectangle(345, 425, 50, 50));
             ChessBoard[7, 4] = new King(this, true, new Rectangle(405, 425, 50, 50));
             ChessBoard[7, 5] = new Bishop(this, true, new Rectangle(465, 425, 50, 50));
-     
-            
-
+            ChessBoard[7, 6] = new Knight(this, true, new Rectangle(525, 425, 50, 50));
+            ChessBoard[7, 7] = new Rook(this, true, new Rectangle(585, 425, 50, 50));
             //white pieces
-
             // This puts each chess piece in their positions same as a regular chess board
 
+            for (int i = 0; i < 8; i++)
+            {
 
+                ChessBoard[1, i] = new Pawn(this, false, new Rectangle(165 + (i * 60), 65, 50, 50)); //white pawns
+
+                ChessBoard[6, i] = new Pawn(this, true, new Rectangle(165 + (i * 60), 365, 50, 50)); // black pawns
+
+                //each square is separated by 60 so multiplier increases by 60 for the next pawns
+            }
+            reload = true;
 
             // this puts the pawns in their positions, for loop is used as pawns are on the same rows
         }
@@ -724,26 +743,26 @@ namespace ChessNEA
                             {
                                 ChessBoard[0, pawnColumn] = new Queen(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 5, 50, 50)); //replaces pawn with queen
                                 promotewhite = false;
-                                promoted = true;
+                                reload= true;
                                    
                             }
                             else if (rect == promotions[1]) //Rook rectangle at index 1 
                             {
                                 ChessBoard[0, pawnColumn] = new Rook(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 5, 50, 50));
                                 promotewhite = false;
-                                promoted = true;
+                                reload = true;
                             }
                             else if (rect == promotions[2])//Knight rectangle at index 2 
                             {
                                 ChessBoard[0, pawnColumn] = new Knight(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 5, 50, 50));
                                 promotewhite = false;
-                                promoted = true;
+                                reload = true;
                             }
                             else if (rect == promotions[3])//Bishop rectangle at index 3 
                             {
                                 ChessBoard[0, pawnColumn] = new Bishop(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 5, 50, 50));
                                 promotewhite = false;
-                                promoted = true;
+                                reload = true;
                             }
                         }
                         else
@@ -760,25 +779,25 @@ namespace ChessNEA
                             {
                                 ChessBoard[7, pawnColumn] = new Queen(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 425, 50, 50));
                                 promoteblack = false;
-                                promoted = true;
+                                reload = true;
                             }
                             else if (rect == promotions[1])//Rook rectangle at index 1 
                             {
                                 ChessBoard[7, pawnColumn] = new Rook(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 425, 50, 50));
                                 promoteblack = false;
-                                promoted = true;
+                                reload = true;
                             }
                             else if (rect == promotions[2])//Knight rectangle at index 2 
                             {
                                 ChessBoard[7, pawnColumn] = new Knight(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 425, 50, 50));
                                 promoteblack = false;
-                                promoted = true;
+                                reload = true;
                             }
                             else if (rect == promotions[3])//Bishop rectangle at index 3
                             {
                                 ChessBoard[7, pawnColumn] = new Bishop(this, IsWhite, new Rectangle(165 + (60 * pawnColumn), 425, 50, 50));
                                 promoteblack = false;
-                                promoted = true;
+                                reload = true;
                             }
                         }
                     }

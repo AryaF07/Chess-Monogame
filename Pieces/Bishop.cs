@@ -54,7 +54,7 @@ namespace ChessNEA
             {
                 // if you have pressed left click in the previous frame and have now released left click, there will be an output
                 leftclickPressed = false;
-                Debug.WriteLine(IsWhite ? "Mouse has clicked white bishop" : "Mouse has clicked black bishop");
+              
                 //Displays line depending on if the piece is white or not.
                 findMoves();
             }

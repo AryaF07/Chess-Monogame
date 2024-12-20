@@ -64,7 +64,7 @@ namespace ChessNEA
                 {
                     // if you have pressed left click in the previous frame and have now released left click, there will be an output
                     leftclickPressed = false;
-                    Debug.WriteLine(IsWhite ? "Mouse has clicked white pawn" : "Mouse has clicked black pawn");
+                   
                     
                     findMoves(); //Calls function to find the legal moves of the piece that has been clicked
 

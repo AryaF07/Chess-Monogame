@@ -27,7 +27,8 @@ namespace ChessNEA
             board = _board; // board attribute will equal whatever parameter is passed into the function.
 
         }
-        
+
+        public abstract void findMoves();
         public abstract void LoadContent(ContentManager content);
         //Allows for every class that inherits from piece to load in their specific sprites
 

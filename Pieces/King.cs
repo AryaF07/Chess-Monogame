@@ -19,7 +19,7 @@ namespace ChessNEA
             Position = position;
         }
        public bool hasMoved = false;
-        bool testing = true;
+      
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)
@@ -139,6 +139,40 @@ namespace ChessNEA
             movescalculated = true;
         }
 
-     
+        public override int evaluate()
+        {
+            int row = (Position.Y - 5) / 60;
+            int col = (Position.X - 165) / 60;
+            if (IsWhite == true)
+            {
+                int[,] KingWhite = {
+                    { -30, -40, -40, -50, -50, -40, -40, -30 },
+                    { -30, -40, -40, -50, -50, -40, -40, -30 },
+                    { -30, -40, -40, -50, -50, -40, -40, -30 },
+                    { -30, -40, -40, -50, -50, -40, -40, -30 },
+                    { -20, -30, -30, -40, -40, -30, -30, -20 },
+                    { -10, -20, -20, -20, -20, -20, -20, -10 },
+                    {  20,  20,   0,   0,   0,   0,  20,  20 },
+                    {  20,  30,  10,   0,   0,  10,  30,  20 }
+                };
+                return KingWhite[row, col];
+            }
+            else
+            {
+                int[,] KingBlack = {
+                    { -20, -30, -10,   0,   0, -10, -30, -20 },
+                    { -20, -20,   0,   0,   0,   0, -20, -20 },
+                    {  10,  20,  20,  20,  20,  20,  20,  10 },
+                    {  20,  30,  30,  40,  40,  30,  30,  20 },
+                    {  30,  40,  40,  50,  50,  40,  40,  30 },
+                    {  30,  40,  40,  50,  50,  40,  40,  30 },
+                    {  30,  40,  40,  50,  50,  40,  40,  30 },
+                    {  30,  40,  40,  50,  50,  40,  40,  30 }
+                };
+                return KingBlack[row, col];
+            }
+
+
+        }
     }
 }

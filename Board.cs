@@ -5,20 +5,7 @@ using Microsoft.Xna.Framework.Input;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.Design.Serialization;
-using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web;
+
 
 namespace ChessNEA
 {
@@ -39,15 +26,16 @@ namespace ChessNEA
         Texture2D rookPromotionB;
         Texture2D bishopPromotionB;
         Texture2D insufficientmaterialscreen;
-        
+        Bot bot = new Bot();
+
         SpriteFont Font; //Stores font for timer text
 
         List<Rectangle> highlights = new List<Rectangle>();//this list will contain the rectangles for the move highlights
         Rectangle [] promotions = new Rectangle[4];//this array will contain the rectangles for the promotion sprites
 
         public double duration = 600 ; //Stores how much time each player has
-        double elapsedtimeW; //Stores how much time has elapsed during a whites turn
-        double elapsedtimeB;//Stores how much time has elapsed during a whites turn
+        double elapsedtimeW = 0; //Stores how much time has elapsed during a whites turn
+        double elapsedtimeB = 0;//Stores how much time has elapsed during a whites turn
 
         public string timerB = "00:00"; //timer for black
         public string timerW = "00:00"; //timer for white
@@ -62,7 +50,7 @@ namespace ChessNEA
         bool promoteblack;
         bool insufficientmaterial;
         bool fiftymoverule;
-        public bool reload = false;
+        public bool reload = false; //indicates if the textures need to be loaded
         bool pawnmoved; //indicates if a pawn has moved at any time
         bool piececaptured; //indicates if a piece has been captured at any time
         int numberofmoves;//will keep count of how many moves have been made
@@ -73,6 +61,7 @@ namespace ChessNEA
             
             SetupBoard();
             Piece.setBoard(this);
+            Bot.setBoard(this);
             
             //Function is called if board is instantiated,
         } 
@@ -90,6 +79,8 @@ namespace ChessNEA
             fiftymoverule = false;
             pawnmoved = false;
             piececaptured = false;
+            elapsedtimeW = 0; //Stores how much time has elapsed during a whites turn
+            elapsedtimeB = 0;//Stores how much time has elapsed during a whites turn
             numberofmoves = 0;
             ChessBoard[0, 0] = new Rook(this, false, new Rectangle(165, 5, 50, 50));
             ChessBoard[0, 1] = new Knight(this, false, new Rectangle(225, 5, 50, 50));
@@ -122,6 +113,7 @@ namespace ChessNEA
                 //each square is separated by 60 so multiplier increases by 60 for the next pawns
             }
             reload = true;
+           
 
             // this puts the pawns in their positions, for loop is used as pawns are on the same rows
         }
@@ -461,6 +453,7 @@ namespace ChessNEA
                                         {
                                             check = false; //if a move has been made while the board is in check it would be a move that stops the check
                                         }
+                                        bot.Evaluation();
                                         numberofmoves++; //Number of moves increases after move has been made
                                         foreach (Piece piece1 in ChessBoard)
                                         {

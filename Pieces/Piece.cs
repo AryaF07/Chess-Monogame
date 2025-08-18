@@ -20,7 +20,8 @@ namespace ChessNEA
         public bool leftclickPressed; // Indicates whether the left click has pressed the sprite (true if pressed, false otherwise).
         protected static Board board; //this references the instance of the board for which the piece will interact with, allowing the piece to access the array to implement logic
         public List<Point> legalmoves = new List<Point>(); //this list will contain all of the legal moves that are calculated for a piece
-        public bool movescalculated; //determines whether legal moves have been found for a piece.
+        public bool movescalculated; //determines whether legal moves have been found for a piece
+        public int eval; 
        
         public static void setBoard(Board _board)
         {
@@ -29,6 +30,9 @@ namespace ChessNEA
         }
 
         public abstract void findMoves();
+
+        public abstract int evaluate();
+        
         public abstract void LoadContent(ContentManager content);
         //Allows for every class that inherits from piece to load in their specific sprites
 

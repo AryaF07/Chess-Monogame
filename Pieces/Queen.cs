@@ -15,6 +15,14 @@ namespace ChessNEA
         {
             IsWhite = iswhite;
             Position = position;
+            if (IsWhite == true)
+            {
+                eval = 9;
+            }
+            else
+            {
+                eval = -9;
+            }
         }
 
         public override void LoadContent(ContentManager content)
@@ -219,7 +227,41 @@ namespace ChessNEA
             }
             movescalculated = true;
         }
+        public override int evaluate()
+        {
+            int row = (Position.Y - 5) / 60;
+            int col = (Position.X - 165) / 60;
+            if (IsWhite == true)
+            {
+                int[,] QueenWhite = {
+                    { -20, -10, -10,  -5,  -5, -10, -10, -20 },
+                    { -10,   0,   0,   0,   0,   0,   0, -10 },
+                    { -10,   0,   5,   5,   5,   5,   0, -10 },
+                    {  -5,   0,   5,   5,   5,   5,   0,  -5 },
+                    {   0,   0,   5,   5,   5,   5,   0,  -5 },
+                    { -10,   5,   5,   5,   5,   5,   0, -10 },
+                    { -10,   0,   5,   0,   0,   0,   0, -10 },
+                    { -20, -10, -10,  -5,  -5, -10, -10, -20 }
+                };
+                return QueenWhite[row, col];
+            }
+            else
+            {
+                int[,] QueenBlack = {
+                    {  20,  10,  10,   5,   5,  10,  10,  20 },
+                    {  10,   0,  -5,   0,   0,   0,   0,  10 },
+                    {  10,  -5,  -5,  -5,  -5,  -5,   0,  10 },
+                    {   0,   0,  -5,  -5,  -5,  -5,   0,   5 },
+                    {   5,   0,  -5,  -5,  -5,  -5,   0,   5 },
+                    {  10,   0,  -5,  -5,  -5,  -5,   0,  10 },
+                    {  10,   0,   0,   0,   0,   0,   0,  10 },
+                    {  20,  10,  10,   5,   5,  10,  10,  20 }
+                };
+                return QueenBlack[row, col];
+            }
 
+
+        }
 
     }
 }

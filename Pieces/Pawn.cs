@@ -1,16 +1,9 @@
-﻿using System.Diagnostics;
-using System.Linq;
-using System.Runtime.ExceptionServices;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using SharpDX.Direct2D1.Effects;
-using SharpDX.Direct3D9;
-using SharpDX.DirectWrite;
+
 
 namespace ChessNEA
 {
@@ -21,11 +14,19 @@ namespace ChessNEA
             //allows the pawn class to refer to the board class to access the array
             IsWhite = iswhite;
             Position = position;
-        
+            if (IsWhite == true)
+            {
+                eval = 1;
+            }
+            else
+            {
+                eval = -1;
+            }
+
         }
 
 
-       public bool movedtwoSquares = false;
+        public bool movedtwoSquares = false;
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)
@@ -38,6 +39,7 @@ namespace ChessNEA
                 pieceSprite = content.Load<Texture2D>("PawnB");
                 //Loads the black sprite if "IsWhite" is false
             }
+            
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
@@ -191,6 +193,41 @@ namespace ChessNEA
             }
 
             movescalculated = true;
+        }
+        public override int evaluate()
+        {
+            int row = (Position.Y - 5) / 60; 
+            int col = (Position.X - 165) / 60;
+            if (IsWhite == true)
+            {
+                 int[,] PawnWhite = {
+                    {   0,   0,   0,   0,   0,   0,   0,   0 },
+                    {  50,  50,  50,  50,  50,  50,  50,  50 },
+                    {  10,  10,  20,  30,  30,  20,  10,  10 },
+                    {   5,   5,  10,  25,  25,  10,   5,   5 },
+                    {   0,   0,   0,  20,  20,   0,   0,   0 },
+                    {   5,  -5, -10,   0,   0, -10,  -5,   5 },
+                    {   5,  10,  10, -20, -20,  10,  10,   5 },
+                    {   0,   0,   0,   0,   0,   0,   0,   0 }
+                };
+                return PawnWhite[row, col];
+            }
+            else
+            {
+                int[,] PawnBlack = {
+                    {   0,   0,   0,   0,   0,   0,   0,   0 },
+                    {  -5, -10, -10,  20,  20, -10, -10,  -5 },
+                    {  -5,   5,  10,   0,   0,  10,   5,  -5 },
+                    {   0,   0,   0, -20, -20,   0,   0,   0 },
+                    {  -5,  -5, -10, -25, -25, -10,  -5,  -5 },
+                    { -10, -10, -20, -30, -30, -20, -10, -10 },
+                    { -50, -50, -50, -50, -50, -50, -50, -50 },
+                    {   0,   0,   0,   0,   0,   0,   0,   0 }
+                };
+                return PawnBlack[row, col];
+            }
+            
+            
         }
     }
 }

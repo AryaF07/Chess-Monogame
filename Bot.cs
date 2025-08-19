@@ -26,6 +26,7 @@ namespace ChessNEA
                 if (piece!=null)
                 {
                     evaluation += piece.evaluate();
+                    evaluation += piece.pieceValue;
                 }
             }
             Debug.WriteLine(evaluation);

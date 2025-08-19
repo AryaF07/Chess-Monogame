@@ -17,14 +17,15 @@ namespace ChessNEA
             Position = position;
             if (IsWhite == true)
             {
-                eval = 9;
+                pieceValue = 900;
             }
             else
             {
-                eval = -9;
+                pieceValue = -900;
             }
+            
         }
-
+       
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)

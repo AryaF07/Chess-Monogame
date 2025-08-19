@@ -22,15 +22,17 @@ namespace ChessNEA
             Position = position;
             if (IsWhite == true)
             {
-                eval = 5;
+                pieceValue = 500;
             }
             else
             {
-                eval = -5;
+                pieceValue = -500;
             }
+
 
         }
         public bool hasMoved = false;
+        
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)

@@ -21,7 +21,8 @@ namespace ChessNEA
         protected static Board board; //this references the instance of the board for which the piece will interact with, allowing the piece to access the array to implement logic
         public List<Point> legalmoves = new List<Point>(); //this list will contain all of the legal moves that are calculated for a piece
         public bool movescalculated; //determines whether legal moves have been found for a piece
-        public int eval; 
+        public int pieceValue;
+       
        
         public static void setBoard(Board _board)
         {

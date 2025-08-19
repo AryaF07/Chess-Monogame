@@ -16,15 +16,17 @@ namespace ChessNEA
             Position = position;
             if (IsWhite == true)
             {
-                eval = 1;
+                pieceValue = 100;
+
             }
             else
             {
-                eval = -1;
+                pieceValue = -100;
             }
-
+            
         }
 
+        
 
         public bool movedtwoSquares = false;
         public override void LoadContent(ContentManager content)

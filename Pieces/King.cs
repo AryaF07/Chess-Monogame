@@ -17,9 +17,17 @@ namespace ChessNEA
         {
             IsWhite = iswhite;
             Position = position;
+            if (IsWhite == true)
+            {
+                pieceValue = 20000;
+            }
+            else
+            {
+                pieceValue = -20000;
+            }
         }
        public bool hasMoved = false;
-      
+
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)
@@ -30,6 +38,7 @@ namespace ChessNEA
             {
                 pieceSprite = content.Load<Texture2D>("KingB");
             }
+           
         }
         public override void Draw(SpriteBatch spriteBatch)
         {

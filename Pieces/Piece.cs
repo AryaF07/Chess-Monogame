@@ -22,6 +22,7 @@ namespace ChessNEA
         public List<Point> legalmoves = new List<Point>(); //this list will contain all of the legal moves that are calculated for a piece
         public bool movescalculated; //determines whether legal moves have been found for a piece
         public int pieceValue;
+        public bool botPiece = false;
        
        
         public static void setBoard(Board _board)

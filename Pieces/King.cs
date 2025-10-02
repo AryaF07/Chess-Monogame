@@ -145,7 +145,10 @@ namespace ChessNEA
 
             }
             Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50);
-            movescalculated = true;
+            if (botPiece == false)
+            {
+                movescalculated = true;
+            }
         }
 
         public override int evaluate()

@@ -193,8 +193,11 @@ namespace ChessNEA
                     }
                 }
             }
-
-            movescalculated = true;
+            if (botPiece == false)
+            {
+                movescalculated = true;
+            }
+           
         }
         public override int evaluate()
         {

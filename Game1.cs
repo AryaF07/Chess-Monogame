@@ -20,12 +20,13 @@ namespace ChessNEA
         Texture2D chessboardSprite; // holds the chess board sprite
         Texture2D playButton;
         Texture2D endgameButton;
+        Texture2D botbutton;
 
         Texture2D oneminute;
         Texture2D threeminutes;
         Texture2D tenminutes;
         Texture2D stopwatch;
-        Rectangle[] minuteButtons = { new Rectangle(550, 25, 200, 100), new Rectangle(550, 175, 200, 100), new Rectangle(550, 325, 200, 100)}; //stores rectangles for buttons
+        Rectangle[] minuteButtons = { new Rectangle(550, 25, 200, 100), new Rectangle(550, 175, 200, 100), new Rectangle(550, 325, 200, 100), new Rectangle(170, 360, 200, 100) }; //stores rectangles for buttons
 
         Rectangle playbutton = new Rectangle(300, 300, 200, 100);
         Rectangle endgamebutton = new Rectangle(670, 25, 100, 50);
@@ -59,6 +60,7 @@ namespace ChessNEA
             threeminutes = Content.Load<Texture2D>("3minutes");
             tenminutes = Content.Load<Texture2D>("10minutes");
             stopwatch = Content.Load<Texture2D>("stopwatch");
+            botbutton = Content.Load<Texture2D>("bot");
              //Loads all the piece sprites
             chessboardSprite = Content.Load<Texture2D>("Board"); //Loads the sprite for the chess board
             // TODO: use this.Content to load your game content here
@@ -134,6 +136,15 @@ namespace ChessNEA
                                 screen2 = false;
                                 startGame = true;
                             }
+                            else
+                            { 
+                                LoadContent();
+                                board.botGame = true;
+                                board.bot = new Bot();
+                                screen2 = false;
+                                startGame = true;
+
+                            }
                         }
                     }
                 }
@@ -195,6 +206,7 @@ namespace ChessNEA
                 _spriteBatch.Draw(oneminute, minuteButtons[0], Color.White);
                 _spriteBatch.Draw(threeminutes, minuteButtons[1], Color.White);
                 _spriteBatch.Draw(tenminutes, minuteButtons[2], Color.White);
+                _spriteBatch.Draw(botbutton, minuteButtons[3], Color.White);
             }
             if (startGame == true) //Chessboard
             {

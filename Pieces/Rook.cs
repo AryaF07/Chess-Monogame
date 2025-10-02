@@ -20,9 +20,19 @@ namespace ChessNEA
         {
             IsWhite = iswhite;
             Position = position;
-            
+            if (IsWhite == true)
+            {
+                pieceValue = 500;
+            }
+            else
+            {
+                pieceValue = -500;
+            }
+
+
         }
         public bool hasMoved = false;
+        
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)
@@ -151,8 +161,46 @@ namespace ChessNEA
                         break;
                     }
                 }
-            } 
-            movescalculated = true;
+            }
+            if (botPiece == false)
+            {
+                movescalculated = true;
+            }
+        }
+        public override int evaluate()
+        {
+            int row = (Position.Y - 5) / 60;
+            int col = (Position.X - 165) / 60;
+            if (IsWhite == true)
+            {
+                int[,] RookWhite = {
+                    {   0,   0,   0,   0,   0,   0,   0,   0 },
+                    {   5,  10,  10,  10,  10,  10,  10,   5 },
+                    {  -5,   0,   0,   0,   0,   0,   0,  -5 },
+                    {  -5,   0,   0,   0,   0,   0,   0,  -5 },
+                    {  -5,   0,   0,   0,   0,   0,   0,  -5 },
+                    {  -5,   0,   0,   0,   0,   0,   0,  -5 },
+                    {  -5,   0,   0,   0,   0,   0,   0,  -5 },
+                    {   0,   0,   0,   5,   5,   0,   0,   0 }
+                };
+                return RookWhite[row, col];
+            }
+            else
+            {
+                int[,] RookBlack = {
+                {   0,   0,   0,  -5,  -5,   0,   0,   0 },
+                {   5,   0,   0,   0,   0,   0,   0,   5 },
+                {   5,   0,   0,   0,   0,   0,   0,   5 },
+                {   5,   0,   0,   0,   0,   0,   0,   5 },
+                {   5,   0,   0,   0,   0,   0,   0,   5 },
+                {   5,   0,   0,   0,   0,   0,   0,   5 },
+                {  -5, -10, -10, -10, -10, -10, -10,  -5 },
+                {   0,   0,   0,   0,   0,   0,   0,   0 }
+                };
+                return RookBlack[row, col];
+            }
+
+
         }
 
     }

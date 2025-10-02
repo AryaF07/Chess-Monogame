@@ -16,8 +16,17 @@ namespace ChessNEA
         {
             IsWhite = iswhite;
             Position = position;
+            if (IsWhite == true)
+            {
+                pieceValue = 320;
+            }
+            else
+            {
+                pieceValue = -320;
+            }
+            
         }
-
+      
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)
@@ -89,11 +98,48 @@ namespace ChessNEA
                     }
                 }
             }
-            movescalculated = true;
+            if (botPiece == false)
+            {
+                movescalculated = true;
+            }
 
 
 
         }
+        public override int evaluate()
+        {
+            int row = (Position.Y - 5) / 60;
+            int col = (Position.X - 165) / 60;
+            if (IsWhite == true)
+            {
+                int[,] KnightWhite = {
+                    { -50, -40, -30, -30, -30, -30, -40, -50 },
+                    { -40, -20,   0,   0,   0,   0, -20, -40 },
+                    { -30,   0,  10,  15,  15,  10,   0, -30 },
+                    { -30,   5,  15,  20,  20,  15,   5, -30 },
+                    { -30,   0,  15,  20,  20,  15,   0, -30 },
+                    { -30,   5,  10,  15,  15,  10,   5, -30 },
+                    { -40, -20,   0,   0,   5,   5,   0, -40 },
+                    { -50, -40, -30, -30, -30, -30, -40, -50 }
+                };
+                return KnightWhite[row, col];
+            }
+            else
+            {
+                int[,] KnightBlack = {
+                {  50,  40,  30,  30,  30,  30,  40,  50 },
+                {  40,  20,   0,   0,  -5,  -5,   0,  40 },
+                {  30,  -5, -10, -15, -15, -10,  -5,  30 },
+                {  30,   0, -15, -20, -20, -15,   0,  30 },
+                {  30,  -5, -15, -20, -20, -15,  -5,  30 },
+                {  30,   0, -10, -15, -15, -10,   0,  30 },
+                {  40,  20,   0,   0,   0,   0,  20,  40 },
+                {  50,  40,  30,  30,  30,  30,  40,  50 }
+                };
+                return KnightBlack[row, col];
+            }
 
+
+        }
     }
 }

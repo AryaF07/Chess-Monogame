@@ -2,23 +2,9 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.ComponentModel.Design.Serialization;
-using System.Diagnostics;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Net.NetworkInformation;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web;
+
 
 namespace ChessNEA
 {
@@ -40,18 +26,20 @@ namespace ChessNEA
         Texture2D bishopPromotionB;
         Texture2D insufficientmaterialscreen;
         
+
+
         SpriteFont Font; //Stores font for timer text
 
         List<Rectangle> highlights = new List<Rectangle>();//this list will contain the rectangles for the move highlights
         Rectangle [] promotions = new Rectangle[4];//this array will contain the rectangles for the promotion sprites
 
         public double duration = 600 ; //Stores how much time each player has
-        double elapsedtimeW; //Stores how much time has elapsed during a whites turn
-        double elapsedtimeB;//Stores how much time has elapsed during a whites turn
+        double elapsedtimeW = 0; //Stores how much time has elapsed during a whites turn
+        double elapsedtimeB = 0;//Stores how much time has elapsed during a whites turn
 
         public string timerB = "00:00"; //timer for black
         public string timerW = "00:00"; //timer for white
-
+        public Bot bot;
         bool highlightsDrawn;
         bool leftclickPressed;
         private bool turn; //true = whites turn false = blacks turn
@@ -61,8 +49,9 @@ namespace ChessNEA
         bool promotewhite;
         bool promoteblack;
         bool insufficientmaterial;
+        public bool botGame = false;
         bool fiftymoverule;
-        public bool reload = false;
+        public bool reload = false; //indicates if the textures need to be loaded
         bool pawnmoved; //indicates if a pawn has moved at any time
         bool piececaptured; //indicates if a piece has been captured at any time
         int numberofmoves;//will keep count of how many moves have been made
@@ -72,7 +61,9 @@ namespace ChessNEA
         {
             
             SetupBoard();
-            Piece.setBoard(this);
+            Piece.setBoard(this);  
+            Bot.setBoard(this);
+
             
             //Function is called if board is instantiated,
         } 
@@ -90,6 +81,8 @@ namespace ChessNEA
             fiftymoverule = false;
             pawnmoved = false;
             piececaptured = false;
+            elapsedtimeW = 0; //Stores how much time has elapsed during a whites turn
+            elapsedtimeB = 0;//Stores how much time has elapsed during a whites turn
             numberofmoves = 0;
             ChessBoard[0, 0] = new Rook(this, false, new Rectangle(165, 5, 50, 50));
             ChessBoard[0, 1] = new Knight(this, false, new Rectangle(225, 5, 50, 50));
@@ -122,6 +115,7 @@ namespace ChessNEA
                 //each square is separated by 60 so multiplier increases by 60 for the next pawns
             }
             reload = true;
+           
 
             // this puts the pawns in their positions, for loop is used as pawns are on the same rows
         }
@@ -160,22 +154,26 @@ namespace ChessNEA
         {
             Rectangle gameScreen = new Rectangle(125, 150, 564, 186);
          
-            if (turn == true)
+            if (turn == true && botGame == false)
             {
                 double remainingTime = Math.Max(0, duration - elapsedtimeW); //stores how much time is left
                 int minutes = (int)(remainingTime / 60);
                 int seconds = (int)(remainingTime - (minutes * 60));
                 timerW = $"{minutes:D2}:{seconds:D2}"; //puts time in MM:SS format
+                spriteBatch.DrawString(Font, timerW, new Vector2(50, 400), Color.White);
+                spriteBatch.DrawString(Font, timerB, new Vector2(50, 50), Color.White);
             }
-            else
+            else if (turn == false && botGame == false) 
             {
                 double remainingTime = Math.Max(0, duration - elapsedtimeB); //stores how much time is left
                 int minutes = (int)(remainingTime / 60);
                 int seconds = (int)(remainingTime - (minutes * 60));
                 timerB = $"{minutes:D2}:{seconds:D2}";//puts time in MM:SS format
+                spriteBatch.DrawString(Font, timerW, new Vector2(50, 400), Color.White);
+                spriteBatch.DrawString(Font, timerB, new Vector2(50, 50), Color.White);
             }
-            spriteBatch.DrawString(Font, timerB,new Vector2(50, 50), Color.White);
-            spriteBatch.DrawString(Font, timerW, new Vector2(50, 400), Color.White);
+           
+         
             //draws all the sprites that are in the ChessBoard array
             foreach (Piece piece in ChessBoard)
             {
@@ -320,18 +318,41 @@ namespace ChessNEA
                 {
                     if (piece != null && piece.IsWhite == turn && promotewhite == false && promoteblack == false)
                     {
-                        piece.Update(); //updates the pieces to check if they have been clicked
-
-                        if (piece.movescalculated == true)
+                        if (botGame == true && turn == true)
                         {
-                            highlights.Clear();
-                            previousRow = (piece.Position.Y - 5) / 60;  //calculates the row number for the pawn in the array using the coordinates of the rectangle
-                            previousColumn = (piece.Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
-                            highlightSquares(piece.legalmoves); //if they have been clicked and legal moves were found, these moves are highlighted.
-                            piece.movescalculated = false; //this is to prevent the moves for this piece being highlighted more than once
-                            piece.legalmoves.Clear(); //Clears the legal move list as they have all been highlighted
+                            piece.Update(); //updates the pieces to check if they have been clicked
 
+                            if (piece.movescalculated == true)
+                            {
+                                highlights.Clear();
+                                previousRow = (piece.Position.Y - 5) / 60;  //calculates the row number for the pawn in the array using the coordinates of the rectangle
+                                previousColumn = (piece.Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
+                                highlightSquares(piece.legalmoves); //if they have been clicked and legal moves were found, these moves are highlighted.
+                                piece.movescalculated = false; //this is to prevent the moves for this piece being highlighted more than once
+                                piece.legalmoves.Clear(); //Clears the legal move list as they have all been highlighted
+
+                            }
                         }
+                        else if (botGame == false)
+                        {
+                            piece.Update(); //updates the pieces to check if they have been clicked
+
+                            if (piece.movescalculated == true)
+                            {
+                                highlights.Clear();
+                                previousRow = (piece.Position.Y - 5) / 60;  //calculates the row number for the pawn in the array using the coordinates of the rectangle
+                                previousColumn = (piece.Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
+                                highlightSquares(piece.legalmoves); //if they have been clicked and legal moves were found, these moves are highlighted.
+                                piece.movescalculated = false; //this is to prevent the moves for this piece being highlighted more than once
+                                piece.legalmoves.Clear(); //Clears the legal move list as they have all been highlighted
+
+                            }
+                        }
+
+
+
+
+
 
 
 
@@ -461,6 +482,16 @@ namespace ChessNEA
                                         {
                                             check = false; //if a move has been made while the board is in check it would be a move that stops the check
                                         }
+                                        if (botGame == true && turn == false)
+                                        {
+                                            bot.move();
+                                            ChessBoard[bot.previousRow, bot.previousCol].Position = new Rectangle(165 + (60 * bot.col), 5 + (60 * bot.row), 50, 50);
+                                            ChessBoard[bot.row, bot.col] = ChessBoard[bot.previousRow, bot.previousCol];
+                                            ChessBoard[bot.previousRow, bot.previousCol] = null;
+                                            bot.evaluate();
+                                            turn = true;
+                                        }
+
                                         numberofmoves++; //Number of moves increases after move has been made
                                         foreach (Piece piece1 in ChessBoard)
                                         {

@@ -13,11 +13,19 @@ namespace ChessNEA
     {
         public Bishop(Board board, bool iswhite, Rectangle position) 
         {
-
             IsWhite = iswhite;
             Position = position;
+            if (IsWhite == true)
+            {
+                pieceValue = 330;
+            }
+            else
+            {
+                pieceValue = -330;
+            }
+            
         }
-
+        
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)
@@ -143,7 +151,45 @@ namespace ChessNEA
                     }
                 }
             }
-            movescalculated = true;
+            if (botPiece == false)
+            {
+                movescalculated = true;
+            }
+        }
+        public override int evaluate()
+        {
+            int row = (Position.Y - 5) / 60;
+            int col = (Position.X - 165) / 60;
+            if (IsWhite == true)
+            {
+                int[,] BishopWhite = {
+                   { -20, -10, -10, -10, -10, -10, -10, -20 },
+                    { -10,   0,   0,   0,   0,   0,   0, -10 },
+                    { -10,   0,   5,  10,  10,   5,   0, -10 },
+                    { -10,   5,   5,  10,  10,   5,   5, -10 },
+                    { -10,   0,  10,  10,  10,  10,   0, -10 },
+                    { -10,  10,  10,  10,  10,  10,  10, -10 },
+                    { -10,   5,   0,   0,   0,   0,   5, -10 },
+                    { -20, -10, -10, -10, -10, -10, -10, -20 }
+                };
+                return BishopWhite[row, col];
+            }
+            else
+            {
+                int[,] BishopBlack = {
+                    {  20,  10,  10,  10,  10,  10,  10,  20 },
+                    {  10,  -5,   0,   0,   0,   0,  -5,  10 },
+                    {  10, -10, -10, -10, -10, -10, -10,  10 },
+                    {  10,   0, -10, -10, -10, -10,   0,  10 },
+                    {  10,  -5,  -5, -10, -10,  -5,  -5,  10 },
+                    {  10,   0,  -5, -10, -10,  -5,   0,  10 },
+                    {  10,   0,   0,   0,   0,   0,   0,  10 },
+                    {  20,  10,  10,  10,  10,  10,  10,  20 }
+                };
+                return BishopBlack[row, col];
+            }
+
+
         }
     }
 }

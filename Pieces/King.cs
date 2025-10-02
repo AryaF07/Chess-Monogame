@@ -17,9 +17,17 @@ namespace ChessNEA
         {
             IsWhite = iswhite;
             Position = position;
+            if (IsWhite == true)
+            {
+                pieceValue = 20000;
+            }
+            else
+            {
+                pieceValue = -20000;
+            }
         }
        public bool hasMoved = false;
-        bool testing = true;
+
         public override void LoadContent(ContentManager content)
         {
             if (IsWhite)
@@ -30,6 +38,7 @@ namespace ChessNEA
             {
                 pieceSprite = content.Load<Texture2D>("KingB");
             }
+           
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
@@ -136,9 +145,46 @@ namespace ChessNEA
 
             }
             Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50);
-            movescalculated = true;
+            if (botPiece == false)
+            {
+                movescalculated = true;
+            }
         }
 
-     
+        public override int evaluate()
+        {
+            int row = (Position.Y - 5) / 60;
+            int col = (Position.X - 165) / 60;
+            if (IsWhite == true)
+            {
+                int[,] KingWhite = {
+                    { -30, -40, -40, -50, -50, -40, -40, -30 },
+                    { -30, -40, -40, -50, -50, -40, -40, -30 },
+                    { -30, -40, -40, -50, -50, -40, -40, -30 },
+                    { -30, -40, -40, -50, -50, -40, -40, -30 },
+                    { -20, -30, -30, -40, -40, -30, -30, -20 },
+                    { -10, -20, -20, -20, -20, -20, -20, -10 },
+                    {  20,  20,   0,   0,   0,   0,  20,  20 },
+                    {  20,  30,  10,   0,   0,  10,  30,  20 }
+                };
+                return KingWhite[row, col];
+            }
+            else
+            {
+                int[,] KingBlack = {
+                    { -20, -30, -10,   0,   0, -10, -30, -20 },
+                    { -20, -20,   0,   0,   0,   0, -20, -20 },
+                    {  10,  20,  20,  20,  20,  20,  20,  10 },
+                    {  20,  30,  30,  40,  40,  30,  30,  20 },
+                    {  30,  40,  40,  50,  50,  40,  40,  30 },
+                    {  30,  40,  40,  50,  50,  40,  40,  30 },
+                    {  30,  40,  40,  50,  50,  40,  40,  30 },
+                    {  30,  40,  40,  50,  50,  40,  40,  30 }
+                };
+                return KingBlack[row, col];
+            }
+
+
+        }
     }
 }

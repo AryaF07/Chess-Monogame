@@ -46,7 +46,7 @@ namespace ChessNEA
         bool leftclickPressed;
         public bool turn; //true = whites turn false = blacks turn
         public bool check;
-        bool checkmate;
+        public bool checkmate;
         bool stalemate;
         bool promotewhite;
         bool promoteblack;
@@ -334,7 +334,9 @@ namespace ChessNEA
                                 piece.legalmoves.Clear(); //Clears the legal move list as they have all been highlighted
 
                             }
+
                         }
+
                         else if (botGame == false)
                         {
                             piece.Update(); //updates the pieces to check if they have been clicked
@@ -350,6 +352,15 @@ namespace ChessNEA
 
                             }
                         }
+                        else if (botGame == true && turn == false)
+                        {
+                            
+                                bot.move();
+                                numberofmoves++;
+                            
+                        }
+
+
 
 
 
@@ -359,179 +370,174 @@ namespace ChessNEA
 
 
                         if (highlightsDrawn == true)  //checks if the highlights have been drawn before checking if they have been clicked
-                        {
-                            foreach (Rectangle rect in highlights)
                             {
-                                MouseState mouse = Mouse.GetState();
-
-                                //gets the current state of the mouse for example XY position and button states
-                                Rectangle mouse2 = new Rectangle(mouse.X, mouse.Y, 1, 1);
-                                //creates rectangle with the position of the mouse
-                                if (mouse2.Intersects(rect)) //Checks if the mouse is over the highlight
+                                foreach (Rectangle rect in highlights)
                                 {
-                                    int col = ((rect.X - 160) / 60); //Finds the column number of the highlight
-                                    int row = (rect.Y / 60); //Finds  the row number of the highlight
+                                    MouseState mouse = Mouse.GetState();
 
-                                    if (numberofmoves == 50) //resets when reach 50
+                                    //gets the current state of the mouse for example XY position and button states
+                                    Rectangle mouse2 = new Rectangle(mouse.X, mouse.Y, 1, 1);
+                                    //creates rectangle with the position of the mouse
+                                    if (mouse2.Intersects(rect)) //Checks if the mouse is over the highlight
                                     {
-                                        numberofmoves = 0;
-                                        piececaptured = false;
-                                        pawnmoved = false;
-                                    }
+                                        int col = ((rect.X - 160) / 60); //Finds the column number of the highlight
+                                        int row = (rect.Y / 60); //Finds  the row number of the highlight
 
-
-
-
-                                    foreach (Piece piece1 in ChessBoard)
-                                    {
-                                        if (piece1 is Pawn pawn)
+                                        if (numberofmoves == 50) //resets when reach 50
                                         {
-                                            pawn.movedtwoSquares = false;
+                                            numberofmoves = 0;
+                                            piececaptured = false;
+                                            pawnmoved = false;
+                                        }
+
+
+
+
+                                        foreach (Piece piece1 in ChessBoard)
+                                        {
+                                            if (piece1 is Pawn pawn)
+                                            {
+                                                pawn.movedtwoSquares = false;
+
+                                            }
+                                        }
+
+                                        if (leftclickPressed == false && mouse.LeftButton == ButtonState.Pressed)
+                                        {
+                                            leftclickPressed = true;
 
                                         }
-                                    }
-
-                                    if (leftclickPressed == false && mouse.LeftButton == ButtonState.Pressed)
-                                    {
-                                        leftclickPressed = true;
-
-                                    }
-                                    if (leftclickPressed == true && mouse.LeftButton == ButtonState.Released) //If clicked
-                                    {
-                                        leftclickPressed = false; //Sets to false for the next frame
-                                        if (ChessBoard[previousRow, previousColumn] is Rook rook) //if the moving piece is a rook set has moved to true
+                                        if (leftclickPressed == true && mouse.LeftButton == ButtonState.Released) //If clicked
                                         {
-                                            rook.hasMoved = true;
-                                        }
-                                        else if (ChessBoard[previousRow, previousColumn] is King king) //if the moving piece is a king set has moved to true
-                                        {
-                                            king.hasMoved = true;
-                                        }
-                                        else if (ChessBoard[previousRow, previousColumn] is Pawn pawn && Math.Abs(previousRow - row) == 2) //Checks if the pawn is moving two squares
-                                        {
-                                            pawn.movedtwoSquares = true;
-                                        }
-                                        if (ChessBoard[previousRow, previousColumn] is King && previousColumn - 2 == col) //Checks if the move is a queenside castle
-                                        {
-                                            ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
-                                            ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
-                                            ChessBoard[previousRow, previousColumn] = null; //previous position is empty
-                                            ChessBoard[row, 0].Position = new Rectangle(165 + (60 * 3), 5 + (60 * row), 50, 50); //changes the position of the rook
-                                            ChessBoard[row, 3] = ChessBoard[row, 0];
-                                            ChessBoard[row, 0] = null;
-                                            highlights.Clear(); //Clears the highlights because a move has been made
-                                            highlightsDrawn = false; //Move has been made
-                                            turn = !turn;
-                                        }
-                                        else if (ChessBoard[previousRow, previousColumn] is King && previousColumn + 2 == col) //Checks if the move is a kingside castle
-                                        {
-
-                                            ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
-                                            ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
-                                            ChessBoard[previousRow, previousColumn] = null; //previous position is empty
-                                            ChessBoard[row, 7].Position = new Rectangle(165 + (60 * 5), 5 + (60 * row), 50, 50);
-                                            ChessBoard[row, 5] = ChessBoard[row, 7];
-                                            ChessBoard[row, 7] = null;
-                                            highlights.Clear(); //Clears the highlights because a move has been made
-                                            highlightsDrawn = false; //Move has been made
-                                            turn = !turn;
-                                        }
-                                        else if (ChessBoard[previousRow, previousColumn] is Pawn pawnenPassant && Math.Abs(previousColumn - col) == 1 && ChessBoard[row, col] == null) //checks if the move is diagonal and if square is empty
-                                        {
-                                            if (pawnenPassant.IsWhite == true)
+                                            leftclickPressed = false; //Sets to false for the next frame
+                                            if (ChessBoard[previousRow, previousColumn] is Rook rook) //if the moving piece is a rook set has moved to true
+                                            {
+                                                rook.hasMoved = true;
+                                            }
+                                            else if (ChessBoard[previousRow, previousColumn] is King king) //if the moving piece is a king set has moved to true
+                                            {
+                                                king.hasMoved = true;
+                                            }
+                                            else if (ChessBoard[previousRow, previousColumn] is Pawn pawn && Math.Abs(previousRow - row) == 2) //Checks if the pawn is moving two squares
+                                            {
+                                                pawn.movedtwoSquares = true;
+                                            }
+                                            if (ChessBoard[previousRow, previousColumn] is King && previousColumn - 2 == col) //Checks if the move is a queenside castle
                                             {
                                                 ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
                                                 ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
                                                 ChessBoard[previousRow, previousColumn] = null; //previous position is empty
-                                                ChessBoard[row + 1, col] = null; //removes the pawn below the square
+                                                ChessBoard[row, 0].Position = new Rectangle(165 + (60 * 3), 5 + (60 * row), 50, 50); //changes the position of the rook
+                                                ChessBoard[row, 3] = ChessBoard[row, 0];
+                                                ChessBoard[row, 0] = null;
                                                 highlights.Clear(); //Clears the highlights because a move has been made
                                                 highlightsDrawn = false; //Move has been made
                                                 turn = !turn;
-                                                piececaptured = true;
-                                                pawnmoved = true;
+                                            }
+                                            else if (ChessBoard[previousRow, previousColumn] is King && previousColumn + 2 == col) //Checks if the move is a kingside castle
+                                            {
+
+                                                ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
+                                                ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
+                                                ChessBoard[previousRow, previousColumn] = null; //previous position is empty
+                                                ChessBoard[row, 7].Position = new Rectangle(165 + (60 * 5), 5 + (60 * row), 50, 50);
+                                                ChessBoard[row, 5] = ChessBoard[row, 7];
+                                                ChessBoard[row, 7] = null;
+                                                highlights.Clear(); //Clears the highlights because a move has been made
+                                                highlightsDrawn = false; //Move has been made
+                                                turn = !turn;
+                                            }
+                                            else if (ChessBoard[previousRow, previousColumn] is Pawn pawnenPassant && Math.Abs(previousColumn - col) == 1 && ChessBoard[row, col] == null) //checks if the move is diagonal and if square is empty
+                                            {
+                                                if (pawnenPassant.IsWhite == true)
+                                                {
+                                                    ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
+                                                    ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
+                                                    ChessBoard[previousRow, previousColumn] = null; //previous position is empty
+                                                    ChessBoard[row + 1, col] = null; //removes the pawn below the square
+                                                    highlights.Clear(); //Clears the highlights because a move has been made
+                                                    highlightsDrawn = false; //Move has been made
+                                                    turn = !turn;
+                                                    piececaptured = true;
+                                                    pawnmoved = true;
+                                                }
+                                                else
+                                                {
+                                                    ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
+                                                    ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
+                                                    ChessBoard[previousRow, previousColumn] = null; //previous position is empty
+                                                    ChessBoard[row - 1, col] = null; //removes the pawn below the square
+                                                    highlights.Clear(); //Clears the highlights because a move has been made
+                                                    highlightsDrawn = false; //Move has been made
+                                                    turn = !turn;
+                                                    piececaptured = true;
+                                                    pawnmoved = true;
+                                                }
                                             }
                                             else
                                             {
+                                                if (ChessBoard[previousRow, previousColumn] is Pawn)
+                                                {
+                                                    pawnmoved = true;
+                                                }
                                                 ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
+                                                if (ChessBoard[row, col] != null) //Checks if it will be a capture
+                                                {
+                                                    piececaptured = true;
+                                                }
                                                 ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
                                                 ChessBoard[previousRow, previousColumn] = null; //previous position is empty
-                                                ChessBoard[row - 1, col] = null; //removes the pawn below the square
                                                 highlights.Clear(); //Clears the highlights because a move has been made
                                                 highlightsDrawn = false; //Move has been made
                                                 turn = !turn;
-                                                piececaptured = true;
-                                                pawnmoved = true;
                                             }
-                                        }
-                                        else
-                                        {
-                                            if (ChessBoard[previousRow, previousColumn] is Pawn)
+                                            if (check == true)
                                             {
-                                                pawnmoved = true;
+                                                check = false; //if a move has been made while the board is in check it would be a move that stops the check
                                             }
-                                            ChessBoard[previousRow, previousColumn].Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50); //Changes the X and Y coordinates of the rectangle for the piece
-                                            if (ChessBoard[row, col] != null) //Checks if it will be a capture
-                                            {
-                                                piececaptured = true;
-                                            }
-                                            ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
-                                            ChessBoard[previousRow, previousColumn] = null; //previous position is empty
-                                            highlights.Clear(); //Clears the highlights because a move has been made
-                                            highlightsDrawn = false; //Move has been made
-                                            turn = !turn;
-                                        }
-                                        if (check == true)
-                                        {
-                                            check = false; //if a move has been made while the board is in check it would be a move that stops the check
-                                        }
-                                        if (botGame == true && turn == false)
-                                        {
-                                            bot.move(false);
-                                            ChessBoard[bot.previousRow, bot.previousCol].Position = new Rectangle(165 + (60 * bot.col), 5 + (60 * bot.row), 50, 50);
-                                            ChessBoard[bot.row, bot.col] = ChessBoard[bot.previousRow, bot.previousCol];
-                                            ChessBoard[bot.previousRow, bot.previousCol] = null;
-                                            bot.evaluate();
-                                            turn = true;
-                                        }
 
-                                        numberofmoves++; //Number of moves increases after move has been made
-                                        foreach (Piece piece1 in ChessBoard)
-                                        {
-                                            if (piece1 is King king1)
+                                            numberofmoves++; //Number of moves increases after move has been made
+                                            Debug.WriteLine(numberofmoves);
+                                      
+                                            if (ChessBoard[row, col] != null && ChessBoard[row, col] is Pawn && ChessBoard[row, col].IsWhite == true && row == 0) //Checks for white pawn on first row
                                             {
-                                                if (king1.IsWhite == turn)
-                                                {
-                                                    check = IsKingInCheck(turn);
-                                                    if (check == true)
-                                                    {
-                                                        checkmate = Checkmate(king1);
-                                                    }
-                                                    else
-                                                    {
-                                                        stalemate = Checkmate(king1);
-                                                    }
-                                                }
+                                                promotewhite = true;
                                             }
+                                            else if (ChessBoard[row, col] != null && ChessBoard[row, col] is Pawn && ChessBoard[row, col].IsWhite == false && row == 7)//Checks for black pawn on last row
+                                            {
+                                                promoteblack = true;
+                                            }
+
+                                            break; //Stops the search
                                         }
-                                        insufficientmaterial = InsufficientMaterial();
-                                        if (ChessBoard[row, col] != null && ChessBoard[row, col] is Pawn && ChessBoard[row, col].IsWhite == true && row == 0) //Checks for white pawn on first row
-                                        {
-                                            promotewhite = true;
-                                        }
-                                        else if (ChessBoard[row, col] != null && ChessBoard[row, col] is Pawn && ChessBoard[row, col].IsWhite == false && row == 7)//Checks for black pawn on last row
-                                        {
-                                            promoteblack = true;
-                                        }
-                                        break; //Stops the search
                                     }
                                 }
-                            }
                         }
+                                foreach (Piece piece1 in ChessBoard)
+                                {
+                                    if (piece1 is King king1)
+                                    {
+                                        if (king1.IsWhite == turn)
+                                        {
+                                             bool ischeckmate = Checkmate(turn);
+                                            if (IsKingInCheck(turn))
+                                            {
+                                                checkmate = ischeckmate;
+                                            }
+                                            else
+                                            {
+                                                stalemate = ischeckmate;
+                                            }
+                                        }
+                                    }
+                                }
+                                insufficientmaterial = InsufficientMaterial();
                     }
+                        }
                 }
             }
   
-        }
+        
         public bool IsKingInCheck(bool colour)
         {
             King king = null;
@@ -730,7 +736,7 @@ namespace ChessNEA
             return false;
         }
 
-        public bool Checkmate(King king) //checks if the king is in checkmate
+        public bool Checkmate(bool colour) //checks if the king is in checkmate
         {
             foreach (Piece piece in ChessBoard)
             {

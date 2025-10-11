@@ -1,8 +1,9 @@
-﻿using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
-using Microsoft.Xna.Framework;
 namespace ChessNEA
 {
     public class Bot
@@ -27,13 +28,8 @@ namespace ChessNEA
             }
         }
 
-
         protected static Board board;
-        public int previousCol;
-        public int previousRow;
-        public int col;
-        public int row;
-        Random rand = new Random();
+
         public static void setBoard(Board _board)
         {
             board = _board; // board attribute will equal whatever parameter is passed into the function
@@ -67,29 +63,26 @@ namespace ChessNEA
                    
                         foreach (Point point in piece.legalmoves)
                         {
-                            if (piece is null)
-                        {
-                            Debug.WriteLine("nul");
-                        }
+
 
                             //point.x = nextcol point.y = nextrow  (piece.Position.X - 165) / 60 = prevcol (piece.Position.Y - 5) / 60 = prevrow
+
+
                             int prevcol = (piece.Position.X - 165) / 60;
                             int prevrow = (piece.Position.Y - 5) / 60;
                             Piece previouspiece = board.ChessBoard[point.Y, point.X];
                             board.ChessBoard[point.Y, point.X] = piece;
-                            board.ChessBoard[(piece.Position.Y - 5) / 60, (piece.Position.X - 165) / 60] = null;
+                            board.ChessBoard[prevrow, prevcol] = null;
                             piece.Position = new Rectangle(165 + (60 * point.X), 5 + (60 * point.Y), 50, 50);
 
-                            if (board.IsKingInCheck(colour) == false && previouspiece is not King)
-                            {
-                                movingpieces.Add(new Move(piece, point.X, point.Y, prevcol, prevrow, previouspiece));
-                              
-                            }
-                            board.ChessBoard[(piece.Position.Y - 5) / 60, (piece.Position.X - 165) / 60] = piece;
-                            board.ChessBoard[point.Y, point.X] = previouspiece;
+                             if (board.IsKingInCheck(colour) == false)
+                             {                          
+                                
+                                movingpieces.Add(new Move(piece, point.X, point.Y, prevcol, prevrow, previouspiece)); 
+                             }
                             piece.Position = new Rectangle(165 + (60 * prevcol), 5 + (60 * prevrow), 50, 50);
-
-
+                            board.ChessBoard[prevrow, prevcol] = piece;
+                            board.ChessBoard[point.Y, point.X] = previouspiece;
                         }
                     
 
@@ -106,21 +99,32 @@ namespace ChessNEA
             Move move = Minimax(board, 3).move;
             Debug.WriteLine("minimax complete");
             makeMove(board,move);
+            if (move.piece is Pawn && (move.piece.Position.Y - 5) / 60 == 7)               
+            {
+                //auto promotes to queen
+                board.ChessBoard[7, (move.piece.Position.X - 165) / 60] = new Queen(board, false, new Rectangle((move.piece.Position.X - 165) / 60, 425, 50, 50));
+            }
+
         }
 
         public void makeMove(Board board, Move move)
         {
             if (move.piece != null)
             {
-                
+               
                 move.capturedPiece = board.ChessBoard[move.nextrow, move.nextcol];
                 board.ChessBoard[move.nextrow, move.nextcol] = move.piece;
                 board.ChessBoard[move.prevrow, move.prevcol] = null;
                 move.piece.Position = new Rectangle(165 + (60 * move.nextcol), 5 + (60 * move.nextrow), 50, 50);
-                board.turn = !board.turn;
+                if (move.piece is King king)
+                {
+                    king.hasMoved = true;
+                }
+                    board.turn = !board.turn;
             }
+         }
 
-        }
+       
 
         public void undoMove(Board board, Move move)
         {
@@ -134,7 +138,7 @@ namespace ChessNEA
         (int evaluation,Move move) Minimax(Board board,int depth)
         {
   
-            if (board.checkmate == true || depth == 0)
+            if (board.IsKingInCheck (board.turn) && board.Checkmate(board.turn) || depth == 0)
             {
                 return (evaluate(),new Move(null,0,0,0,0,null));
             }

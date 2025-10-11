@@ -2,8 +2,10 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using SharpDX.DirectWrite;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 
 namespace ChessNEA
@@ -268,7 +270,7 @@ namespace ChessNEA
                     {
                         if (piece != null && piece is King king && king.IsWhite == turn)
                         {
-                            potentialCheck = IsKingInCheck(king);
+                            potentialCheck = IsKingInCheck(turn);
                             break; //Checks if the move would keep the king in check 
                         }
                     }
@@ -485,9 +487,12 @@ namespace ChessNEA
                                         if (botGame == true && turn == false)
                                         {
                                             bot.move();
+<<<<<<< Updated upstream
                                             ChessBoard[bot.previousRow, bot.previousCol].Position = new Rectangle(165 + (60 * bot.col), 5 + (60 * bot.row), 50, 50);
                                             ChessBoard[bot.row, bot.col] = ChessBoard[bot.previousRow, bot.previousCol];
                                             ChessBoard[bot.previousRow, bot.previousCol] = null;
+=======
+>>>>>>> Stashed changes
                                             bot.evaluate();
                                             turn = true;
                                         }
@@ -499,7 +504,7 @@ namespace ChessNEA
                                             {
                                                 if (king1.IsWhite == turn)
                                                 {
-                                                    check = IsKingInCheck(king1);
+                                                    check = IsKingInCheck(turn);
                                                     if (check == true)
                                                     {
                                                         checkmate = Checkmate(king1);
@@ -530,16 +535,30 @@ namespace ChessNEA
             }
   
         }
-        public bool IsKingInCheck(King king)
+        public bool IsKingInCheck(bool colour)
         {
+            King king = null;
+            foreach (Piece piece in ChessBoard)
+            {
+                if (piece is King king1 && king1.IsWhite == colour)
+                {
+                        king = king1;
+                        break;
+                    
+                    
+                }
+            }
+
+            
             int row = (king.Position.Y - 5) / 60; //calculates the row number for the pawn in the array using the coordinates of the rectangle
+
             int col = (king.Position.X - 165) / 60; //calculates the column number for the pawn in the array using the coordinates of the rectangle
 
             for (int i = 1; i <= 7; i++) //Checks the squares to the right of the king
             {
                 if (col + i < 8 && ChessBoard[row, col + i] != null)
                 {
-
+                    
                     if (ChessBoard[row, col + i].IsWhite != king.IsWhite && (ChessBoard[row, col + i] is Rook || ChessBoard[row, col + i] is Queen))
                     {  //if the square that is being checked has an enemy rook/queen the king is in check    
                         return true;
@@ -734,7 +753,7 @@ namespace ChessNEA
                         ChessBoard[prevrow, prevcol].Position = new Rectangle(165 + (60 * column), 5 + (60 * row), 50, 50);
                         ChessBoard[row, column] = ChessBoard[prevrow, prevcol];
                         ChessBoard[prevrow, prevcol] = null;
-                        potentialCheck = IsKingInCheck(king);
+                        potentialCheck = IsKingInCheck(turn);
                         ChessBoard[prevrow, prevcol] = piece1;
                         ChessBoard[prevrow, prevcol].Position = new Rectangle(165 + (60 * prevcol), 5 + (60 * prevrow), 50, 50);
                         ChessBoard[row, column] = piece2;

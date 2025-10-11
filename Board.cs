@@ -486,12 +486,10 @@ namespace ChessNEA
                                         }
                                         if (botGame == true && turn == false)
                                         {
-                                            bot.move();
-
+                                            bot.move(false);
                                             ChessBoard[bot.previousRow, bot.previousCol].Position = new Rectangle(165 + (60 * bot.col), 5 + (60 * bot.row), 50, 50);
                                             ChessBoard[bot.row, bot.col] = ChessBoard[bot.previousRow, bot.previousCol];
                                             ChessBoard[bot.previousRow, bot.previousCol] = null;
-
                                             bot.evaluate();
                                             turn = true;
                                         }

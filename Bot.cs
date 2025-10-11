@@ -52,10 +52,8 @@ namespace ChessNEA
 
                
             }
-            return -evaluation;
+            return -evaluation; //negative means losing for the bot 
         }
-
-
 
         public List<Move> findmoves(bool colour)
         {
@@ -139,13 +137,8 @@ namespace ChessNEA
             if (board.checkmate == true || depth == 0)
             {
                 return (evaluate(),new Move(null,0,0,0,0,null));
-
             }
             Move bestMove = new Move(null,0,0,0,0,null);
-
-
-            
-            Debug.WriteLine("Move made");
 
             if (board.turn == false)//maximising player
             {

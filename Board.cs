@@ -496,6 +496,27 @@ namespace ChessNEA
                                                 check = false; //if a move has been made while the board is in check it would be a move that stops the check
                                             }
 
+                                            ChessBoard[row, col] = ChessBoard[previousRow, previousColumn]; //Changes the position of the piece in the array after the move has been made
+                                            ChessBoard[previousRow, previousColumn] = null; //previous position is empty
+                                            highlights.Clear(); //Clears the highlights because a move has been made
+                                            highlightsDrawn = false; //Move has been made
+                                            turn = !turn;
+                                        }
+                                        if (check == true)
+                                        {
+                                            check = false; //if a move has been made while the board is in check it would be a move that stops the check
+                                        }
+                                        if (botGame == true && turn == false)
+                                        {
+                                            bot.move(false);
+                                            ChessBoard[bot.previousRow, bot.previousCol].Position = new Rectangle(165 + (60 * bot.col), 5 + (60 * bot.row), 50, 50);
+                                            ChessBoard[bot.row, bot.col] = ChessBoard[bot.previousRow, bot.previousCol];
+                                            ChessBoard[bot.previousRow, bot.previousCol] = null;
+                                            bot.evaluate();
+                                            turn = true;
+                                        }
+
+
                                             numberofmoves++; //Number of moves increases after move has been made
                                             Debug.WriteLine(numberofmoves);
                                       

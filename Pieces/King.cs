@@ -105,47 +105,55 @@ namespace ChessNEA
 
             if (hasMoved == false && board.check == false) //Checks if the king has not moved and if the board is not in check
             {
-                if (board.ChessBoard[row, col - 1] == null && board.ChessBoard[row, col - 2] == null && board.ChessBoard[row, col - 3] == null) 
-                { //Checks if the 3 squares between the rook and king to the left are empty for a queenside castle
-                    if (board.ChessBoard[row,0] is Rook rook && rook.hasMoved == false)//Checks if the left rook has not moved
-                    {
-                        for (int j = 1; j <= 2; j++)
+                if (col - 3 >=0)
+                {
+                    if (board.ChessBoard[row, col - 1] == null && board.ChessBoard[row, col - 2] == null && board.ChessBoard[row, col - 3] == null)
+                    { //Checks if the 3 squares between the rook and king to the left are empty for a queenside castle
+                        if (board.ChessBoard[row, 0] is Rook rook && rook.hasMoved == false)//Checks if the left rook has not moved
                         {
-                            Position = new Rectangle(165 + (60 * col - j), 5 + (60 * row), 50, 50);
-                            if (board.IsKingInCheck(this) == true) //Checks if the king would be in check in the squares that it moves through
+                            for (int j = 1; j <= 2; j++)
                             {
-                                break; //No legal moves added if the king is in check in one of the squares
+                                Position = new Rectangle(165 + (60 * col - j), 5 + (60 * row), 50, 50);
+                                if (board.IsKingInCheck(IsWhite) == true) //Checks if the king would be in check in the squares that it moves through
+                                {
+                                    break; //No legal moves added if the king is in check in one of the squares
+                                }
+                                if (j == 2)
+                                {
+                                    legalmoves.Add(new Point(col - 2, row));
+                                }
                             }
-                            if (j == 2)
+                        }
+                    }
+
+                }
+                if (col + 2 < 8)
+                {
+                    if (board.ChessBoard[row, col + 1] == null && board.ChessBoard[row, col + 2] == null)
+                    {//Checks if the 2 squares between the rook and king to the right are empty for a kingside castle
+                        if (board.ChessBoard[row, 7] is Rook rook && rook.hasMoved == false)
+                        {
+                            for (int j = 1; j <= 2; j++)
                             {
-                                legalmoves.Add(new Point(col - 2, row)); 
+                                Position = new Rectangle(165 + (60 * col + j), 5 + (60 * row), 50, 50);
+                                if (board.IsKingInCheck(IsWhite) == true)
+                                {
+                                    break;
+                                }
+                                if (j == 2)
+                                {
+                                    legalmoves.Add(new Point(col + 2, row));
+                                }
                             }
                         }
                     }
                 }
-                else if (board.ChessBoard[row, col + 1] == null && board.ChessBoard[row, col + 2] == null)
-                {//Checks if the 2 squares between the rook and king to the right are empty for a kingside castle
-                    if (board.ChessBoard[row,7] is Rook rook && rook.hasMoved == false)
-                    {
-                        for (int j = 1; j <= 2; j++)
-                        {
-                            Position = new Rectangle(165 + (60 * col + j), 5 + (60 * row), 50, 50);
-                            if (board.IsKingInCheck(this) == true)
-                            {
-                                break;
-                            }
-                            if (j == 2)
-                            {
-                                legalmoves.Add(new Point(col + 2, row));
-                            }
-                        }
-                    }
-                }
+                
 
 
             }
             Position = new Rectangle(165 + (60 * col), 5 + (60 * row), 50, 50);
-            if (botPiece == false)
+            if (board.turn == true && board.botGame == true || board.botGame == false)
             {
                 movescalculated = true;
             }

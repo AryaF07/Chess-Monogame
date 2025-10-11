@@ -226,7 +226,7 @@ namespace ChessNEA
                     }
                 }
             }
-            if (botPiece == false)
+            if (board.turn == true && board.botGame == true || board.botGame == false)
             {
                 movescalculated = true;
             }

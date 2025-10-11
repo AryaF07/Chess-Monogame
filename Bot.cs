@@ -7,8 +7,7 @@ namespace ChessNEA
 {
     public class Bot
     {
-<<<<<<< Updated upstream
-=======
+
         public  struct Move //This is where "moves" will be stored during the search process in the Minimax algorithm
         {
             public Piece piece;
@@ -28,7 +27,7 @@ namespace ChessNEA
             }
         }
 
->>>>>>> Stashed changes
+
         protected static Board board;
         public int previousCol;
         public int previousRow;
@@ -40,52 +39,23 @@ namespace ChessNEA
             board = _board; // board attribute will equal whatever parameter is passed into the function
         }
 
-        public void evaluate()
+        public int evaluate()
         {
             int evaluation = 0;
-            foreach(Piece piece in board.ChessBoard)
+            foreach (Piece piece in board.ChessBoard)
             {
-                if (piece!=null)
+                if (piece != null)
                 {
                     evaluation += piece.evaluate();
                     evaluation += piece.pieceValue;
                 }
+
+               
             }
-<<<<<<< Updated upstream
-            Debug.WriteLine(evaluation);
+            return -evaluation;
         }
 
-        public void move()
-        {
 
-           List<Piece> movePieces = new List<Piece>();
-            foreach (Piece piece in board.ChessBoard)
-            {
-                if (piece != null && piece.IsWhite == false)
-                {
-                    piece.botPiece = true;
-                    piece.findMoves();
-                    if (piece.legalmoves.Count > 0)
-                    {
-                        movePieces.Add(piece);
-                    }
-                }
-                
-            }
-            int randomNum = rand.Next(movePieces.Count);
-
-            int randomNum2 = rand.Next(movePieces[randomNum].legalmoves.Count);
-            previousRow = (movePieces[randomNum].Position.Y - 5) / 60;
-            previousCol = (movePieces[randomNum].Position.X - 165) / 60;
-            
-            col = movePieces[randomNum].legalmoves[randomNum2].X;
-            row = movePieces[randomNum].legalmoves[randomNum2].Y;
-            foreach (Piece piece in movePieces)
-            {
-                piece.legalmoves.Clear();
-=======
-            return -evaluation; //negative means losing for the bot 
-        }
 
         public List<Move> findmoves(bool colour)
         {
@@ -169,14 +139,14 @@ namespace ChessNEA
             if (board.checkmate == true || depth == 0)
             {
                 return (evaluate(),new Move(null,0,0,0,0,null));
->>>>>>> Stashed changes
+
             }
             Move bestMove = new Move(null,0,0,0,0,null);
 
-<<<<<<< Updated upstream
+
             
             Debug.WriteLine("Move made");
-=======
+
             if (board.turn == false)//maximising player
             {
                 int maxEval = int.MinValue;
@@ -213,7 +183,7 @@ namespace ChessNEA
                 }
                 return (minEval,bestMove);
             }
->>>>>>> Stashed changes
+
         }
 
     }

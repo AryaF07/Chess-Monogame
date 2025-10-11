@@ -44,7 +44,7 @@ namespace ChessNEA
         public Bot bot;
         bool highlightsDrawn;
         bool leftclickPressed;
-        private bool turn; //true = whites turn false = blacks turn
+        public bool turn; //true = whites turn false = blacks turn
         public bool check;
         bool checkmate;
         bool stalemate;
@@ -487,12 +487,11 @@ namespace ChessNEA
                                         if (botGame == true && turn == false)
                                         {
                                             bot.move();
-<<<<<<< Updated upstream
+
                                             ChessBoard[bot.previousRow, bot.previousCol].Position = new Rectangle(165 + (60 * bot.col), 5 + (60 * bot.row), 50, 50);
                                             ChessBoard[bot.row, bot.col] = ChessBoard[bot.previousRow, bot.previousCol];
                                             ChessBoard[bot.previousRow, bot.previousCol] = null;
-=======
->>>>>>> Stashed changes
+
                                             bot.evaluate();
                                             turn = true;
                                         }
@@ -733,7 +732,7 @@ namespace ChessNEA
             return false;
         }
 
-        bool Checkmate(King king) //checks if the king is in checkmate
+        public bool Checkmate(King king) //checks if the king is in checkmate
         {
             foreach (Piece piece in ChessBoard)
             {

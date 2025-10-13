@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Windows.Forms;
 namespace ChessNEA
 {
     public class Bot
@@ -17,6 +18,7 @@ namespace ChessNEA
             public int prevcol;
             public int prevrow;
             public Piece capturedPiece;
+            
             public Move(Piece piece1, int nextcol1, int nextrow1, int prevcol1, int prevrow1, Piece capture)
             {
                 piece = piece1;
@@ -27,8 +29,9 @@ namespace ChessNEA
                 capturedPiece = capture;
             }
         }
-
+      
         protected static Board board;
+        const int largenumber = 99999999;
 
         public static void setBoard(Board _board)
         {
@@ -96,9 +99,9 @@ namespace ChessNEA
 
         public void move()
         {
-            Move move = Minimax(board, 3).move;
-            Debug.WriteLine("minimax complete");
+            Move move = Minimax(board, 4, -largenumber, largenumber).move;
             makeMove(board,move);
+
             if (move.piece is Pawn && (move.piece.Position.Y - 5) / 60 == 7)               
             {
                 //auto promotes to queen
@@ -135,29 +138,57 @@ namespace ChessNEA
         }
 
 
-        (int evaluation,Move move) Minimax(Board board,int depth)
+       public (int evaluation,Move move) Minimax(Board board,int depth, int alpha, int beta)
         {
-  
-            if (board.IsKingInCheck (board.turn) && board.Checkmate(board.turn) || depth == 0)
+            
+            List<Move> moves = findmoves(board.turn);
+            if (moves.Count == 0)
             {
+                if (board.IsKingInCheck(board.turn))
+                {
+                    if (board.turn == false)
+                    {
+                        return (-largenumber + depth, new Move(null, 0, 0, 0, 0, null));
+                    }
+                    else
+                    {
+                        return (largenumber - depth, new Move(null, 0, 0, 0, 0, null));
+                    }
+                }
+                else //stalemate
+                {
+                    return (0, new Move(null, 0, 0, 0, 0, null));
+                }
+            }
+            if (depth == 0 )
+            {
+            
                 return (evaluate(),new Move(null,0,0,0,0,null));
             }
+
             Move bestMove = new Move(null,0,0,0,0,null);
 
             if (board.turn == false)//maximising player
             {
-                int maxEval = int.MinValue;
-                List<Move> movingpieces = findmoves(false);
-                foreach (Move move in movingpieces)
+                int maxEval = -largenumber;
+                foreach (Move move in moves)
                 {
                     makeMove(board, move);
-                    int eval = Minimax(board, depth - 1).evaluation;
+                    int eval = Minimax(board, depth - 1,alpha,beta).evaluation;
                     undoMove(board, move);
+                   
+                    
                     if (eval > maxEval)
                     {
                         maxEval = eval;
                         bestMove = move;
                     }
+                    alpha = Math.Max(alpha, eval);
+                    if (beta <= alpha)
+                    {
+                        break;
+                    }
+
                 }
                 return (maxEval,bestMove);
 
@@ -165,17 +196,21 @@ namespace ChessNEA
             }
             else // minimising player (bot)
             {
-                int minEval = int.MaxValue;
-                List<Move> movingpieces = findmoves(true);
-                foreach (Move move in movingpieces)
+                int minEval = largenumber;
+                foreach (Move move in moves)
                 {
                     makeMove(board, move);
-                    int eval = Minimax(board, depth - 1).evaluation;
+                    int eval = Minimax(board, depth - 1, alpha, beta).evaluation;
                     undoMove(board, move);
                     if (eval < minEval)
                     {
                         minEval = eval;
                         bestMove = move;
+                    }
+                    beta = Math.Min(beta, eval);
+                    if (beta <= alpha)
+                    {
+                        break;
                     }
                 }
                 return (minEval,bestMove);

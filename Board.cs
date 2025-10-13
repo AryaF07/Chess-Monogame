@@ -87,35 +87,36 @@ namespace ChessNEA
             elapsedtimeB = 0;//Stores how much time has elapsed during a whites turn
             numberofmoves = 0;
 
-            int X(int col) => 165 +( 60 * col);
-            int Y(int row) => 5 + (60 * row);
+            ChessBoard[0, 0] = new Rook(this, false, new Rectangle(165, 5, 50, 50));
+            ChessBoard[0, 1] = new Knight(this, false, new Rectangle(225, 5, 50, 50));
+            ChessBoard[0, 2] = new Bishop(this, false, new Rectangle(285, 5, 50, 50));
+            ChessBoard[0, 3] = new Queen(this, false, new Rectangle(345, 5, 50, 50));
+            ChessBoard[0, 4] = new King(this, false, new Rectangle(405, 5, 50, 50));
+            ChessBoard[0, 5] = new Bishop(this, false, new Rectangle(465, 5, 50, 50));
+            ChessBoard[0, 6] = new Knight(this, false, new Rectangle(525, 5, 50, 50));
+            ChessBoard[0, 7] = new Rook(this, false, new Rectangle(585, 5, 50, 50));
+            //black pieces
 
-            // Clear board first
+            ChessBoard[7, 0] = new Rook(this, true, new Rectangle(165, 425, 50, 50));
+            ChessBoard[7, 1] = new Knight(this, true, new Rectangle(225, 425, 50, 50));
+            ChessBoard[7, 2] = new Bishop(this, true, new Rectangle(285, 425, 50, 50));
+            ChessBoard[7, 3] = new Queen(this, true, new Rectangle(345, 425, 50, 50));
+            ChessBoard[7, 4] = new King(this, true, new Rectangle(405, 425, 50, 50));
+            ChessBoard[7, 5] = new Bishop(this, true, new Rectangle(465, 425, 50, 50));
+            ChessBoard[7, 6] = new Knight(this, true, new Rectangle(525, 425, 50, 50));
+            ChessBoard[7, 7] = new Rook(this, true, new Rectangle(585, 425, 50, 50));
+            //white pieces
+            // This puts each chess piece in their positions same as a regular chess board
 
+            for (int i = 0; i < 8; i++)
+            {
 
-            // ---------- Black side (true) ----------
-            ChessBoard[0, 0] = new Rook(this, false, new Rectangle(X(0), Y(0), 50, 50));
-            ChessBoard[0, 7] = new Rook(this, false, new Rectangle(X(7), Y(0), 50, 50));
-            ChessBoard[0, 4] = new King(this, false, new Rectangle(X(4), Y(0), 50, 50));
-            ChessBoard[1, 5] = new Queen(this, false, new Rectangle(X(5), Y(1), 50, 50));
-            ChessBoard[1, 4] = new Pawn(this, false, new Rectangle(X(4), Y(1), 50, 50));
-            ChessBoard[1, 3] = new Pawn(this, false, new Rectangle(X(3), Y(1), 50, 50));
-            ChessBoard[2, 2] = new Knight(this, false, new Rectangle(X(2), Y(2), 50, 50));
+                ChessBoard[1, i] = new Pawn(this, false, new Rectangle(165 + (i * 60), 65, 50, 50)); //white pawns
 
-            // ---------- White side (false) ----------
-            ChessBoard[7, 7] = new Rook(this, true, new Rectangle(X(7), Y(7), 50, 50));
-            ChessBoard[6, 0] = new Rook(this, true, new Rectangle(X(0), Y(6), 50, 50));
-            ChessBoard[6, 4] = new King(this, true, new Rectangle(X(4), Y(6), 50, 50));
-            ChessBoard[4, 3] = new Queen(this, true, new Rectangle(X(3), Y(4), 50, 50));
-            ChessBoard[5, 2] = new Knight(this, true, new Rectangle(X(2), Y(5), 50, 50));
-            ChessBoard[5, 4] = new Bishop(this, true, new Rectangle(X(4), Y(5), 50, 50));
-            ChessBoard[5, 3] = new Pawn(this, true, new Rectangle(X(3), Y(5), 50, 50));
-            ChessBoard[6, 3] = new Pawn(this, true, new Rectangle(X(3), Y(6), 50, 50));
+                ChessBoard[6, i] = new Pawn(this, true, new Rectangle(165 + (i * 60), 365, 50, 50)); // black pawns
 
-            // ---------- A few extra pieces to increase branching ----------
-            ChessBoard[3, 3] = new Pawn(this, false, new Rectangle(X(3), Y(3), 50, 50));   // black pawn advanced
-            ChessBoard[3, 4] = new Pawn(this, true, new Rectangle(X(4), Y(3), 50, 50));   // white pawn clash center
-            ChessBoard[2, 5] = new Bishop(this, true, new Rectangle(X(5), Y(2), 50, 50)); // white bishop aiming at queen side
+                //each square is separated by 60 so multiplier increases by 60 for the next pawns
+            }
             reload = true;
            
 
